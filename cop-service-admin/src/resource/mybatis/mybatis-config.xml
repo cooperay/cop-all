@@ -22,23 +22,11 @@
 		<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
 	</settings>
 
-	<typeAliases>
-		<typeAlias alias="Account"  type="com.cooperay.facade.manage.entity.Account"/>
-		<typeAlias alias="Resource"  type="com.cooperay.facade.manage.entity.Resource"/>
-		<typeAlias alias="Group"  type="com.cooperay.facade.manage.entity.Group"/>
-	</typeAliases>
-
 
 	<plugins>
 		<plugin interceptor="com.cooperay.common.core.mybatis.interceptor.ExecutorInterceptor">
 			<property name="dialectClass" value="com.cooperay.common.core.dialect.MySqlDialect" />
 		</plugin>
 	</plugins>
-
-	<mappers>
-		<mapper resource="mybatis/mapper/AccountMapper.xml" />
-		<mapper resource="mybatis/mapper/GroupMapper.xml" />
-		<mapper resource="mybatis/mapper/ResourceMapper.xml" />
-	</mappers>
 
 </configuration>

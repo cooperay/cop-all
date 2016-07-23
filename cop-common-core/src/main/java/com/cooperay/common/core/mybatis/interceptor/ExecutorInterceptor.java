@@ -17,6 +17,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.log4j.Logger;
 
 import com.cooperay.common.core.dialect.Dialect;
+import com.sun.xml.internal.xsom.impl.scd.Iterators.Map;
 
 
 /**
@@ -93,10 +94,10 @@ public class ExecutorInterceptor extends AbstractInterceptor {
 					sql = sql.substring(0, orderByIndex);
 				}
 			}
-
 			BoundSql newBoundSql = new BoundSql(ms.getConfiguration(), sql, boundSql.getParameterMappings(), boundSql.getParameterObject());
 			MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql), true);
 			queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
+			System.out.println(parameter);
 			queryArgs[PARAMETER_INDEX] = parameter;
 
 			logger.debug("==>" + sql);
