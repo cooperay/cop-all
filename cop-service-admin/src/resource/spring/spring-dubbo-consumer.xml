@@ -6,6 +6,6 @@
             http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}"/>
 	<dubbo:protocol name="dubbo" port="20881"/>
-	<dubbo:reference interface="com.cooperay.facade.admin.service.BillNumberFacade" id="billNumberFacade"/>
+	<!-- <dubbo:reference interface="com.cooperay.facade.admin.service.BillNumberFacade" id="billNumberFacade"/> -->
 
 </beans>  

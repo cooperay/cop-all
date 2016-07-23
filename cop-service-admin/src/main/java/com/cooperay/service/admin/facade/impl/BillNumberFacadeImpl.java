@@ -50,4 +50,30 @@ public class BillNumberFacadeImpl implements BillNumberFacade {
 		return billNumberBiz.getSeqNextValue(seqName);
 	}
 
+	@Override
+	public long create(BillNumber entity) {
+		return billNumberBiz.create(entity);
+	}
+
+	@Override
+	public long create(List<BillNumber> list) {
+		// TODO Auto-generated method stub
+		return billNumberBiz.create(list);
+	}
+
+	@Override
+	public long update(BillNumber entity) {
+		return billNumberBiz.update(entity);
+	}
+
+	@Override
+	public long update(List<BillNumber> list) {
+		return billNumberBiz.update(list);
+	}
+
+	@Override
+	public long deleteById(long id) {
+		return billNumberBiz.deleteById(id);
+	}
+
 }

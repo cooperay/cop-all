@@ -17,7 +17,7 @@
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
 	
 	<import resource="classpath:spring/spring-dubbo-provider.xml"/>
-	<import resource="classpath:spring/spring-dubbo-consumer.xml"/>
+	<!-- <import resource="classpath:spring/spring-dubbo-consumer.xml"/> -->
 	<import resource="classpath:spring/spring-mybatis.xml"/>
 	<!-- <import resource="classpath:spring/spring-dubbo-activemq.xml"/> -->
 	<context:component-scan base-package="com.cooperay.**" />
