@@ -1,13 +1,18 @@
 package com.cooperay.web.vaadin.base.view;
 
 import java.lang.reflect.Field;
+import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 
 import com.cooperay.common.page.PageBean;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
@@ -37,6 +42,7 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -61,17 +67,18 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	private Integer currentPage = 1;
 	private boolean editorEnabled = true;
 	private List<T> list;  //初始列表
+	private Object[] colOrder; //列表顺序
 	
 	private Window editWindow;  //编辑窗口
 	private Grid grid;
 	private PageBar pageBar;
 	
-	public BaseView(T t,String caption) {
-		this(t,caption,null);
-	}
-	
 	public BaseView(T t) {
 		this(t,"编辑区域");
+	}
+	
+	public BaseView(T t,String caption) {
+		this(t,caption,null);
 	}
 	
 	/**
@@ -81,10 +88,16 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	 * @param fieldMap
 	 */
 	public BaseView(T t,String caption,V vo) {
+		this(t,caption,vo,null);
+	}
+	
+	public BaseView(T t,String caption,V vo,Object[] colOrder) {
 		entry = t;
 		this.vo = vo;
+		this.colOrder = colOrder;
 		init(caption);
 	}
+	
 
 	@Override
 	public void setList(List<T> list) {
@@ -110,7 +123,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		}
 		currentPage = pageBean.getCurrentPage();
 		pageBar.reset(pageBean.getTotalCount(), rows);
-		selectedList = new ArrayList<>();
+		selectedList = null;
 	}
 
 	protected void init(String caption) {
@@ -178,6 +191,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		//创建操作按钮
 		Button add  = new Button("新增");
 		add.addStyleName(ValoTheme.BUTTON_SMALL);
+		add.addStyleName(ValoTheme.BUTTON_PRIMARY);
 		add.setIcon(FontAwesome.PLUS);
 		add.addClickListener(new Button.ClickListener() {
 			@Override
@@ -198,16 +212,17 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		Button update  = new Button("修改");
 		update.setIcon(FontAwesome.EDIT);
 		update.addStyleName(ValoTheme.BUTTON_SMALL);
+		update.addStyleName(ValoTheme.BUTTON_PRIMARY);
 		update.addClickListener(new Button.ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
 				if(selectedList==null || selectedList.size()<=0){
-					Notification.show("未选中内容");
+					Notification.show("未选中内容",Type.WARNING_MESSAGE);
 					return;
 				}
 				if(selectedList.size()>1){
-					Notification.show("请选中一条记录进行编辑");
+					Notification.show("请选中一条记录进行编辑",Type.WARNING_MESSAGE);
 					return;
 				}
 				editWindow = createEditWindow(STATE_UPDATE);
@@ -217,12 +232,13 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		
 		Button del  = new Button("删除");
 		del.addStyleName(ValoTheme.BUTTON_SMALL);
+		del.addStyleName(ValoTheme.BUTTON_DANGER);
 		del.setIcon(FontAwesome.REMOVE);
 		del.addClickListener(new Button.ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				if(selectedList == null || selectedList.size()<=0){
-					Notification.show("未选中内容");
+					Notification.show("未选中内容",Type.WARNING_MESSAGE);
 					return;
 				}
 				ConfimWindow confimWindow = new ConfimWindow("警告","删除选中的-"+selectedList.size()+"-条记录？");
@@ -232,8 +248,9 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						for(int i=0 ;i<selectedList.size() ;i++){
 							linster.delete(selectedList.get(i));
 						}
-						Notification.show("删除"+selectedList.size()+"条记录");
+						Notification.show(selectedList.size()+"条记录已删除",Type.TRAY_NOTIFICATION);
 						linster.page(currentPage, rows);
+						grid.deselectAll();
 						confimWindow.close();
 					}
 					@Override
@@ -366,8 +383,12 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		grid.setEditorCancelCaption("取消");
 		grid.setHeightByRows(rows);
 		grid.setHeightMode(HeightMode.ROW);
+		grid.setColumnOrder();
 		// Handle selection in single-selection mode
 		grid.setSelectionMode(SelectionMode.MULTI);
+		if(colOrder!=null){
+			grid.setColumnOrder(colOrder);
+		}
 		Field[] fields= vo.getClass().getDeclaredFields();
 		for (Field voField : fields) {
 			HideInGrid hideProperty = voField.getAnnotation(HideInGrid.class);
@@ -499,5 +520,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	protected void setPageRow(Integer rows){
 		this.rows = rows;
 	}
+	
+	
 	
 }

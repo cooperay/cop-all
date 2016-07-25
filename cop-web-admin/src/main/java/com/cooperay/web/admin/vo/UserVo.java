@@ -10,7 +10,7 @@ import com.cooperay.web.vaadin.base.ann.ReadOnly;
 public class UserVo {
 
 	
-	@FormProperty(text="ID",readonly = true)
+	@FormProperty(text="编码",readonly = true)
 	private Long id;
 
 	@FormProperty(text = "用户名")
