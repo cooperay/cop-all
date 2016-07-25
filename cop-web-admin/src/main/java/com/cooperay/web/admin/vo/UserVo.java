@@ -1,21 +1,25 @@
 package com.cooperay.web.admin.vo;
 
+import java.util.Date;
+
 import javax.validation.constraints.NotNull;
 
 import com.cooperay.web.vaadin.base.ann.FormProperty;
+import com.cooperay.web.vaadin.base.ann.ReadOnly;
 
 public class UserVo {
 
+	
+	@FormProperty(text="ID",readonly = true)
 	private Long id;
 
 	@FormProperty(text = "用户名")
 	@NotNull
 	private String userName;
 
-	@FormProperty(text = "用户名")
+	@FormProperty(text = "密码")
 	@NotNull
 	private String password;
-
 	public Long getId() {
 		return id;
 	}

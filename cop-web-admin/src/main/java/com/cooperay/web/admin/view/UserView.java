@@ -6,5 +6,6 @@ import com.cooperay.web.vaadin.base.view.BaseView;
 public class UserView extends BaseView<User, UserVo> {
 	public UserView() {
 		super(new User(), "用户管理", new UserVo());
+		setPageRow(15);
 	}
 }

@@ -30,6 +30,18 @@ public class PageBar extends HorizontalLayout {
 	}
 	
 	/**
+	 * s刷新bar
+	 * @param allCount
+	 * @param rows
+	 */
+	public void reset(Integer allCount,Integer rows){
+		removeAllComponents();
+		this.allCount = allCount;
+		this.rows = rows;
+		init();
+	}
+	
+	/**
 	 * @作者：李阳
 	 * @时间：2016年6月22日 上午8:48:17
 	 * @描述：上一页点击事件

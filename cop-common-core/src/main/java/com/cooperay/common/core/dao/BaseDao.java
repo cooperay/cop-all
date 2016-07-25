@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
 
+import com.alibaba.druid.support.logging.Log;
 import com.cooperay.common.page.PageBean;
 import com.cooperay.common.page.PageParam;
 
@@ -30,6 +31,12 @@ public interface BaseDao<T> {
 	long insert(T entity);
 
 	/**
+	 * 根据实体新增 空属性将会忽略
+	 * @param entity
+	 * @return
+	 */
+	long insertSelective(T entity);
+	/**
 	 * 批量保存对象.
 	 * 
 	 * @param entity
@@ -46,6 +53,13 @@ public interface BaseDao<T> {
 	 * @return
 	 */
 	long update(T entity);
+	
+	/**
+	 * 更新实体对象对应的记录 空属性将会忽略
+	 * @param entity
+	 * @return
+	 */
+	long updateSelective(T entity);
 
 	/**
 	 * 批量更新对象.

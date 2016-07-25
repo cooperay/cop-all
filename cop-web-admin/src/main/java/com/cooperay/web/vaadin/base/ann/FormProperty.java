@@ -10,4 +10,5 @@ public @interface FormProperty {
 	
 	String text();
 	
+	boolean readonly() default false;
 }

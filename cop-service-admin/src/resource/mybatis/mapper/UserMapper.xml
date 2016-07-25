@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cooperay.service.admin.dao.impl.UserDaoImpl">
 	<resultMap id="BaseResultMap" type="com.cooperay.facade.admin.entity.User">
-		<id column="ID" jdbcType="INTEGER" property="id" />
+		<id column="ID" jdbcType="BIGINT" property="id" />
 		<result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
 		<result column="PASSWORD" jdbcType="VARCHAR" property="password" />
 	</resultMap>
@@ -37,21 +37,21 @@
 		</where>
 	</select>
 
-	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
 		resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
 		from t_user
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</select>
-	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from t_user
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</delete>
 	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.User">
 		insert into t_user (ID, USER_NAME, PASSWORD
 		)
-		values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR},
+		values (#{id,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR},
 		#{password,jdbcType=VARCHAR}
 		)
 	</insert>
@@ -70,7 +70,7 @@
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
-				#{id,jdbcType=INTEGER},
+				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="userName != null">
 				#{userName,jdbcType=VARCHAR},
@@ -96,6 +96,6 @@
 		update t_user
 		set USER_NAME = #{userName,jdbcType=VARCHAR},
 		PASSWORD = #{password,jdbcType=VARCHAR}
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

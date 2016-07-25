@@ -12,6 +12,7 @@ import com.cooperay.web.admin.page.UserPage;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.ErrorHandler;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
@@ -66,10 +67,10 @@ public class AdminUI extends UI {
 					}
 					
 				}
-
-				
 				// Display the error message in a custom fashion
-				Notification.show(cause,Type.ERROR_MESSAGE);
+				Notification notification = new Notification(cause,Type.ERROR_MESSAGE);
+				notification.setHtmlContentAllowed(true);
+				notification.show(Page.getCurrent());
 			}
 		});
     }

@@ -1,6 +1,5 @@
 package com.cooperay.web.admin.service;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +23,27 @@ public class UserService implements BaseFacadeInterface<User> {
 	}
 
 	@Override
-	public List<User> page(Integer page, Integer row) {
-		// TODO Auto-generated method stub
+	public PageBean page(Integer page, Integer row) {
 		PageParam pageParam = new PageParam(page, row);
 		PageBean pageBean = userFacade.listPage(pageParam, null);
-		return userFacade.listBy(null);
+		return pageBean;
+	}
+
+	@Override
+	public void delete(User user) {
+		if(user!=null)
+		userFacade.deleteById(user.getId());
+		
+	}
+
+	@Override
+	public void update(User entry) {
+		userFacade.update(entry);
+	}
+
+	@Override
+	public void list() {
+		
 	}
 
 }

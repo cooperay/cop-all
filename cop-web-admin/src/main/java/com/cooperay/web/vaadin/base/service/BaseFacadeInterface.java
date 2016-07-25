@@ -1,11 +1,19 @@
 package com.cooperay.web.vaadin.base.service;
 
-import java.util.List;
+import com.cooperay.common.page.PageBean;
 
 public interface BaseFacadeInterface <T>{
 
 	void add(T t);
 	
-	List<T> page(Integer page,Integer row);
+	PageBean page(Integer page,Integer row);
+	
+	
+	void delete(T entry);
+	
+	void update(T entry);
+	
+	void list();
+	
 	
 }

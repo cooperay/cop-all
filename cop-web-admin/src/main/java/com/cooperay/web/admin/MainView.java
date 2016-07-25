@@ -1,10 +1,10 @@
 package com.cooperay.web.admin;
 
-import javax.swing.text.TableView;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cooperay.web.admin.page.UserPage;
+import com.vaadin.event.MouseEvents;
+import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -146,9 +146,15 @@ public class MainView extends VerticalLayout implements View{
 		gridLayout.setHeight(60,Unit.PIXELS);
 		gridLayout.addStyleName("main-head");
 		
-		ThemeResource logo = new ThemeResource("../../icon/logo.png");
+		ThemeResource logo = new ThemeResource("img/logo.png");
 		Image logoImage = new Image(null,logo);
 		logoImage.setHeight(60,Unit.PIXELS);
+		logoImage.addClickListener(new MouseEvents.ClickListener() {
+			@Override
+			public void click(ClickEvent event) {
+				UI.getCurrent().getNavigator().navigateTo(WelcomeView.NAME);
+			}
+		});
 		gridLayout.addComponent(logoImage,0,0);
 		
 		Label systemName = new Label("信息管理系统");

@@ -35,8 +35,10 @@ public abstract class BaseDaoImpl<T extends BaseEntity> extends SqlSessionDaoSup
 	protected static final Logger log = LoggerFactory.getLogger(BaseDaoImpl.class);
 
 	public static final String SQL_INSERT = "insert";
+	public static final String SQL_INSERT_SELECTIVE = "insertSelective";
 	public static final String SQL_BATCH_INSERT = "batchInsert";
-	public static final String SQL_UPDATE = "update";
+	public static final String SQL_UPDATE = "updateByPrimaryKey";
+	public static final String SQL_UPDATE_SELECTIVE = "updateByPrimaryKeySelective";
 	public static final String SQL_GET_BY_ID = "selectByPrimaryKey";
 	public static final String SQL_DELETE_BY_ID = "deleteByPrimaryKey";
 	public static final String SQL_LIST_PAGE = "listPage";
@@ -84,6 +86,23 @@ public abstract class BaseDaoImpl<T extends BaseEntity> extends SqlSessionDaoSup
 		return result;
 	}
 
+	@Override
+	public long insertSelective(T t) {
+		if (t == null)
+			throw new RuntimeException("T is null");
+
+		int result = sessionTemplate.insert(getStatement(SQL_INSERT_SELECTIVE), t);
+
+		if (result <= 0)
+			throw BizException.DB_INSERT_RESULT_0;
+
+		if (t != null && t.getId() != null && result > 0)
+			return t.getId();
+
+		return result;
+	}
+	
+	
 	public long insert(List<T> list) {
 
 		if (list == null || list.size() <= 0)
@@ -102,6 +121,18 @@ public abstract class BaseDaoImpl<T extends BaseEntity> extends SqlSessionDaoSup
 			throw new RuntimeException("T is null");
 
 		int result = sessionTemplate.update(getStatement(SQL_UPDATE), t);
+
+		if (result <= 0)
+			throw BizException.DB_UPDATE_RESULT_0;
+
+		return result;
+	}
+	
+	public long updateSelective(T t) {
+		if (t == null)
+			throw new RuntimeException("T is null");
+
+		int result = sessionTemplate.update(getStatement(SQL_UPDATE_SELECTIVE), t);
 
 		if (result <= 0)
 			throw BizException.DB_UPDATE_RESULT_0;

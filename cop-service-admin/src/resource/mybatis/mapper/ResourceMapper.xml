@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cooperay.service.admin.dao.impl.ResourceDaoImpl">
 	<resultMap id="BaseResultMap" type="com.cooperay.facade.admin.entity.Resource">
-		<id column="ID" jdbcType="INTEGER" property="id" />
+		<id column="ID" jdbcType="BIGINT" property="id" />
 		<result column="RESOURCE_NAME" jdbcType="VARCHAR" property="resourceName" />
 		<result column="TYPE" jdbcType="VARCHAR" property="type" />
 	</resultMap>
@@ -39,23 +39,23 @@
 
 
 
-	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
 		resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
 		from t_resource
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</select>
-	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from
 		t_resource
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</delete>
 	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.Resource">
 		insert into t_resource (ID,
 		RESOURCE_NAME, TYPE
 		)
-		values (#{id,jdbcType=INTEGER},
+		values (#{id,jdbcType=BIGINT},
 		#{resourceName,jdbcType=VARCHAR},
 		#{type,jdbcType=VARCHAR}
 		)
@@ -75,7 +75,7 @@
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
-				#{id,jdbcType=INTEGER},
+				#{id,jdbcType=BIGINT},
 			</if>
 			<if test="resourceName != null">
 				#{resourceName,jdbcType=VARCHAR},
@@ -95,13 +95,13 @@
 				TYPE = #{type,jdbcType=VARCHAR},
 			</if>
 		</set>
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.cooperay.facade.admin.entity.Resource">
 		update t_resource
 		set RESOURCE_NAME = #{resourceName,jdbcType=VARCHAR},
 		TYPE =
 		#{type,jdbcType=VARCHAR}
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

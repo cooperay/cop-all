@@ -31,21 +31,23 @@ public class BasePresenter<T,V> implements BaseViewLinster<T> {
 	}
 
 	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		
+	public void delete(T entry) {
+		service.delete(entry);
 	}
 
 	@Override
 	public void update(T entry) {
-		// TODO Auto-generated method stub
-		
+		service.update(entry);
 	}
 
 	@Override
 	public void page(Integer page, Integer rows) {
-		List<T> list = service.page(1,2);
-		view.setPage(list);
+		view.setPage(service.page(page,rows));
+	}
+
+	@Override
+	public void list() {
+		service.list();
 	}
 	
 }

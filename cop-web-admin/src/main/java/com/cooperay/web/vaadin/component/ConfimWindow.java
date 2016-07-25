@@ -31,18 +31,22 @@ public class ConfimWindow extends Window {
 	private ConfimEventLinster confimEventLinster;
 	
 	public ConfimWindow(String title) {
-		super(title);
-		init();
+		this(title,"确认删除？");
 	}
 	
-	private void init(){
+	public ConfimWindow(String title,String content) {
+		super(title);
+		init(content);
+	}
+	
+	private void init(String content){
 		setWidth(250,Unit.PIXELS);
 		setModal(true);
 		center();
 		setResizable(false);
 		VerticalLayout layout = new VerticalLayout();
 		HorizontalLayout buttonLayout = new HorizontalLayout();
-		Label label = new Label("确认删除？");
+		Label label = new Label(content);
 
 		Button confim = new Button("确定");
 		Button cancel = new Button("取消");
