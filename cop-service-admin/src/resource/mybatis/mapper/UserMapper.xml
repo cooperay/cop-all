@@ -5,9 +5,11 @@
 		<id column="ID" jdbcType="BIGINT" property="id" />
 		<result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
 		<result column="PASSWORD" jdbcType="VARCHAR" property="password" />
+		<result column="IS_ENABLE" jdbcType="BIT" property="isEnable" />
+		<result column="STATE" jdbcType="VARCHAR" property="state" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		ID, USER_NAME, PASSWORD
+		ID, USER_NAME, PASSWORD, IS_ENABLE,STATE
 	</sql>
 
 
@@ -17,6 +19,9 @@
 		</if>
 		<if test="password != null">
 			AND PASSWORD = #{password,jdbcType=VARCHAR}
+		</if>
+		<if test="isEnable != null">
+			AND IS_ENABLE = #{isEnable,jdbcType=BIT}
 		</if>
 	</sql>
 
@@ -49,11 +54,12 @@
 		where ID = #{id,jdbcType=BIGINT}
 	</delete>
 	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.User">
-		insert into t_user (ID, USER_NAME, PASSWORD
-		)
+		insert into t_user (ID, USER_NAME, PASSWORD,
+		IS_ENABLE,STATE)
 		values (#{id,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR},
-		#{password,jdbcType=VARCHAR}
-		)
+		#{password,jdbcType=VARCHAR},
+		#{isEnable,jdbcType=BIT},
+		#{state,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" parameterType="com.cooperay.facade.admin.entity.User">
 		insert into t_user
@@ -67,6 +73,9 @@
 			<if test="password != null">
 				PASSWORD,
 			</if>
+			<if test="isEnable != null">
+				IS_ENABLE,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
@@ -77,6 +86,9 @@
 			</if>
 			<if test="password != null">
 				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="isEnable != null">
+				#{isEnable,jdbcType=BIT},
 			</if>
 		</trim>
 	</insert>
@@ -89,13 +101,18 @@
 			<if test="password != null">
 				PASSWORD = #{password,jdbcType=VARCHAR},
 			</if>
+			<if test="isEnable != null">
+				IS_ENABLE = #{isEnable,jdbcType=BIT},
+			</if>
 		</set>
-		where ID = #{id,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=BIGINT}
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.cooperay.facade.admin.entity.User">
 		update t_user
 		set USER_NAME = #{userName,jdbcType=VARCHAR},
-		PASSWORD = #{password,jdbcType=VARCHAR}
+		PASSWORD = #{password,jdbcType=VARCHAR},
+		IS_ENABLE = #{isEnable,jdbcType=BIT},
+		STATE = #{state,jdbcType=VARCHAR}
 		where ID = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

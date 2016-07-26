@@ -3,12 +3,20 @@ package com.cooperay.web.vaadin.component;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.print.attribute.IntegerSyntax;
+import javax.sql.RowSet;
+import javax.xml.bind.helpers.ValidationEventImpl;
 
+import org.springframework.web.servlet.config.VelocityConfigurerBeanDefinitionParser;
+
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Slider;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class PageBar extends HorizontalLayout {
@@ -17,11 +25,14 @@ public class PageBar extends HorizontalLayout {
 	
 	private PageButton curentPage;
 	private PageBarEventLinster pageBarEventLinster;
+	private PageBarExprotLinster pageBarExprotLinster;
 	private PageButton preButton;
 	private PageButton nextButton;
 	private Integer allCount;
 	private Integer rows;
 	private Integer pageCount;
+	
+	private PageButton infoButton;  //页面信息显示
 	
 	public PageBar(Integer allCount,Integer rows){
 		this.allCount = allCount;
@@ -38,6 +49,7 @@ public class PageBar extends HorizontalLayout {
 		removeAllComponents();
 		this.allCount = allCount;
 		this.rows = rows;
+		curentPage =null;
 		init();
 	}
 	
@@ -105,6 +117,9 @@ public class PageBar extends HorizontalLayout {
 	 * @参数：@param pageButton
 	 */
 	private void dispatchPageChangeEvent(PageButton pageButton){
+		if(pageButton==null){
+			return;
+		}
 		curentPage = pageButton;
 		Integer index = pageButton.getIndex();
 		Integer startPage = 0;
@@ -121,19 +136,28 @@ public class PageBar extends HorizontalLayout {
 	}
 	
 	private void init(){
-		if(allCount <= rows || allCount <= 0){
+		/*if(allCount <= rows || allCount <= 0){
+			addComponent(createInfoLabel());
+			addComponent(createSlider());
 			return;
-		}
-		preButton = new PageButton("上一页");
-		preButton.addClickListener(preButtonLinster);
-		nextButton = new PageButton("下一页");
-		nextButton.addClickListener(nextButtonLinster);
-		addComponent(preButton);
-		addComponent(pagesLayout);
-		addComponent(nextButton);
+		}*/
 		pageCount = allCount%rows > 0 ? allCount / rows +1 : allCount /rows ;
-		createPageButton(1, pageCount);
-		refreshSelected();
+		infoButton = new PageButton(getPageInfoString());
+		addComponent(infoButton);
+		if(allCount > rows){
+			preButton = new PageButton("上一页");
+			preButton.addClickListener(preButtonLinster);
+			nextButton = new PageButton("下一页");
+			nextButton.addClickListener(nextButtonLinster);
+			addComponent(preButton);
+			addComponent(pagesLayout);
+			addComponent(nextButton);
+			createPageButton(1, pageCount);
+			refreshSelected();
+		}
+		addComponent(createSlider());
+		addComponent(createExprot());
+		addComponent(createExprotAll());
 	}
 	
 	private List<PageButton> createPageButton(Integer startPage,Integer pageCount){
@@ -155,8 +179,11 @@ public class PageBar extends HorizontalLayout {
 			pagesLayout.addComponent(pb);
 			pages.add(pb);
 		}
-		
+		if(pages.size()<=0){
+			return pages;
+		}
 		PageButton firstPage = pages.get(0);
+		//curentPage = firstPage;
 		if(firstPage.getPage() >= 2){
 			firstPage = new PageButton(1,5);
 			firstPage.addClickListener(pageButtonClickLinstener);
@@ -180,7 +207,9 @@ public class PageBar extends HorizontalLayout {
 		return pages;
 	}
 	
-	
+	/**
+	 * 刷新当前页面选中状态 以及页面信息libel
+	 * */
 	private void refreshSelected(){
 		for(PageButton pb : pages){
 			if(curentPage.equals(pb)){
@@ -189,11 +218,73 @@ public class PageBar extends HorizontalLayout {
 				pb.removeStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 			}
 		};
+		infoButton.setCaption(getPageInfoString());
 	}
 	
-	
-	
+	/**
+	 * 创建更改rows的滑动条
+	 * @return
+	 */
+	private Component createSlider(){
+		Slider slider = new Slider(100, 1000);
+		slider.setWidth(150,Unit.PIXELS);
+		slider.setValue(rows.doubleValue());
+		slider.addValueChangeListener(new Property.ValueChangeListener() {
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Double value = (Double)event.getProperty().getValue();
+				rows = value.intValue();
+				reset(allCount, rows);
+				dispatchPageChangeEvent(curentPage);
+			}
+		});
+		return slider;
+	}
 
+	/**
+	 * 创建信息显示标签
+	 * @return
+	 */
+	private String getPageInfoString(){
+		String infoStr = "记录:"+rows+"/"+allCount+"  页数:";
+		if(curentPage!=null){
+			infoStr += curentPage.getPage();
+		}else{
+			infoStr+=1;
+		}
+		infoStr+="/"+pageCount;
+		return infoStr;
+	}
+	
+	private Component createExprot(){
+		Button exp  = new Button("导出当前页");
+		exp.setIcon(FontAwesome.DOWNLOAD);
+		exp.addStyleName(ValoTheme.BUTTON_SMALL);
+		exp.addClickListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(pageBarExprotLinster!=null){
+					pageBarExprotLinster.exprot(new PageBarExprotEvent());
+				}
+			}
+		});
+		return exp;
+	}
+	
+	private Component createExprotAll(){
+		Button exp  = new Button("导出所有页");
+		exp.setIcon(FontAwesome.DOWNLOAD);
+		exp.addStyleName(ValoTheme.BUTTON_SMALL);
+		exp.addClickListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(pageBarExprotLinster!=null){
+					pageBarExprotLinster.exprotAll(new PageBarExprotEvent());
+				}
+			}
+		});
+		return exp;
+	}
 	
 	public PageBarEventLinster getPageBarEventLinster() {
 		return pageBarEventLinster;
@@ -203,13 +294,40 @@ public class PageBar extends HorizontalLayout {
 		this.pageBarEventLinster = pageBarEventLinster;
 	}
 
+	public void setPageBarExprotLinster(PageBarExprotLinster pageBarExprotLinster){
+		this.pageBarExprotLinster = pageBarExprotLinster;
+	}
 
 
-
-
+	/**
+	 * 页面切换事件
+	 * @author cooperay
+	 *
+	 */
 	public interface PageBarEventLinster{
 		void pageChangeEvent(PageBarEvent pageBarEvent);
 	}
+	
+	/**
+	 * 导出事件监听
+	 * @author cooperay
+	 *
+	 */
+	public interface PageBarExprotLinster{
+		void exprot(PageBarExprotEvent event);
+		
+		void exprotAll(PageBarExprotEvent event);
+	}
+	
+	public class PageBarExprotEvent{
+		public Integer getPage() {
+			return curentPage.getPage();
+		}
+		public Integer getRows() {
+			return rows;
+		}
+	}
+	
 	
 	public class PageBarEvent{
 		private PageButton pageButton;

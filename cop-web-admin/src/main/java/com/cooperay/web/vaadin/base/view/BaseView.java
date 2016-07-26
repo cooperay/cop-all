@@ -1,26 +1,26 @@
 package com.cooperay.web.vaadin.base.view;
 
+import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.sql.Array;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.text.ChoiceFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.Order;
 
 import com.cooperay.common.page.PageBean;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.cooperay.web.vaadin.base.ann.HideInForm;
 import com.cooperay.web.vaadin.base.ann.HideInGrid;
+import com.cooperay.web.vaadin.base.converter.BooleanConverter;
 import com.cooperay.web.vaadin.component.ConfimWindow;
 import com.cooperay.web.vaadin.component.PageBar;
 import com.cooperay.web.vaadin.component.PageBar.PageBarEvent;
+import com.cooperay.web.vaadin.component.PageBar.PageBarExprotEvent;
 import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -28,12 +28,17 @@ import com.vaadin.data.fieldgroup.FieldGroup.CommitEvent;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.GeneratedPropertyContainer;
+import com.vaadin.data.util.PropertyValueGenerator;
+import com.vaadin.data.util.converter.Converter;
+import com.vaadin.data.util.converter.StringToBooleanConverter;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.shared.ui.grid.HeightMode;
+import com.vaadin.server.Page;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -43,6 +48,8 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.ui.renderers.NumberRenderer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -63,8 +70,9 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	
 	
 	/**初示参数**/
-	private Integer rows = 15;
+	private Integer rows = 100;
 	private Integer currentPage = 1;
+	private PageBean pageBean;
 	private boolean editorEnabled = true;
 	private List<T> list;  //初始列表
 	private Object[] colOrder; //列表顺序
@@ -72,6 +80,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	private Window editWindow;  //编辑窗口
 	private Grid grid;
 	private PageBar pageBar;
+	private VerticalLayout panelContent;
 	
 	public BaseView(T t) {
 		this(t,"编辑区域");
@@ -102,7 +111,6 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	@Override
 	public void setList(List<T> list) {
 		BeanItemContainer<T> beanItemContainer = (BeanItemContainer)grid.getContainerDataSource();
-		beanItemContainer.removeAllContainerFilters();
 		beanItemContainer.removeAllItems();
 		beanItemContainer.addAll(list);
 		Integer row = grid.getContainerDataSource().size();
@@ -113,6 +121,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	
 	@Override
 	public void setPage(PageBean pageBean) {
+		this.pageBean = pageBean;
 		BeanItemContainer<T> beanItemContainer = (BeanItemContainer)grid.getContainerDataSource();
 		beanItemContainer.removeAllContainerFilters();
 		beanItemContainer.removeAllItems();
@@ -122,7 +131,9 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			grid.setHeightByRows(row);
 		}
 		currentPage = pageBean.getCurrentPage();
-		pageBar.reset(pageBean.getTotalCount(), rows);
+		if(pageBar == null){
+			panelContent.addComponent(createPageBar(pageBean.getTotalCount(),rows));
+		}
 		selectedList = null;
 	}
 
@@ -130,14 +141,13 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		log.debug("init base view");
 		Panel panel = new Panel(caption);
 		panel.addStyleName(ValoTheme.PANEL_WELL);
-		VerticalLayout panelContent = new VerticalLayout();
+		panelContent = new VerticalLayout();
 		panel.setContent(panelContent);
 		panel.setSizeFull();
 		panelContent.setMargin(true);
 		panelContent.setSpacing(true);
 		panelContent.addComponent(createToolBar());
 		panelContent.addComponent(createGrid());
-		panelContent.addComponent(createPageBar(11,10));
 		addComponent(panel);
 	}
 
@@ -154,8 +164,22 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			@Override
 			public void pageChangeEvent(PageBarEvent pageBarEvent) {
 				Integer page = pageBarEvent.getPageButton().getPage();
-				Integer rows = pageBarEvent.getRows();
-				linster.page(page, rows);
+				BaseView.this.rows = pageBarEvent.getRows();
+				linster.page(page, BaseView.this.rows);
+			}
+		});
+		pageBar.setPageBarExprotLinster(new PageBar.PageBarExprotLinster() {
+			@Override
+			public void exprotAll(PageBarExprotEvent event) {
+				
+				Notification.show("导出所有记录",Type.WARNING_MESSAGE);
+				
+			}
+			
+			@Override
+			public void exprot(PageBarExprotEvent event) {
+				System.out.println(pageBean.getRecordList());
+				Notification.show("导出记录 "+event.getPage()+" "+event.getRows(),Type.WARNING_MESSAGE);
 			}
 		});
 		return pageBar;
@@ -233,7 +257,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		Button del  = new Button("删除");
 		del.addStyleName(ValoTheme.BUTTON_SMALL);
 		del.addStyleName(ValoTheme.BUTTON_DANGER);
-		del.setIcon(FontAwesome.REMOVE);
+		del.setIcon(FontAwesome.TRASH);
 		del.addClickListener(new Button.ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -250,6 +274,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						}
 						Notification.show(selectedList.size()+"条记录已删除",Type.TRAY_NOTIFICATION);
 						linster.page(currentPage, rows);
+						resetPageBar();
 						grid.deselectAll();
 						confimWindow.close();
 					}
@@ -261,9 +286,21 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				getUI().addWindow(confimWindow);	
 			}
 		});
+		
+		Button refresh  = new Button("刷新");
+		refresh.setIcon(FontAwesome.REFRESH);
+		refresh.addStyleName(ValoTheme.BUTTON_SMALL);
+		refresh.addClickListener(new Button.ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				linster.page(currentPage, rows);
+			}
+		});
 		layout.addComponent(add);
 		layout.addComponent(update);
 		layout.addComponent(del);
+		layout.addComponent(refresh);
 		
 		//创建搜索区域
 		/*TextField textField = new TextField();
@@ -310,20 +347,22 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			if(hideProperty!=null){
 				continue;
 			}
-			
 			//判断是否能得到名称 
 			String caption = getFieldDisName(voField);  
 			if(caption == null){
 				continue;
 			}
-			
 			Field field = null;
 			try {
 				field = entry.getClass().getDeclaredField(voField.getName());
 			} catch (NoSuchFieldException e) {
-				log.debug("$==>Vo指定的对象属性不存在 "+voField.getName());
+					try {
+						field = entry.getClass().getSuperclass().getDeclaredField(voField.getName());
+					} catch (NoSuchFieldException | SecurityException e1) {
+						log.debug("$==>Vo指定的对象属性不存在 "+voField.getName());
+					}
 			} catch (SecurityException e) {
-				e.printStackTrace();
+				log.error(e.toString());
 			}
 			if(field ==null){
 				continue;
@@ -341,7 +380,11 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				((TextField)formField).setNullRepresentation("");
 				((TextField)formField).setNullSettingAllowed(true);
 			}
-			
+			//设置只读属性
+			FormProperty formProperty = voField.getAnnotation(FormProperty.class);
+			if(formProperty!=null && formProperty.readonly()){
+				formField.setReadOnly(true);
+			}
 			layout.addComponent(formField);
 			formFields.add(formField);
 		}
@@ -375,15 +418,32 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	private Component createGrid(){
 		// Have a container of some type to contain the data
 		BeanItemContainer<T> container = new BeanItemContainer(entry.getClass(),list);
+		//添加操作列
+		GeneratedPropertyContainer gpc =
+			    new GeneratedPropertyContainer(container);
+		gpc.addGeneratedProperty("delete",
+		    new PropertyValueGenerator<String>() {
+
+		    @Override
+		    public String getValue(Item item, Object itemId,
+		                           Object propertyId) {
+		        return "Delete"; // The caption
+		    }
+
+		    @Override
+		    public Class<String> getType() {
+		        return String.class;
+		    }
+		});
 		// Create a grid bound to the container
 		grid = new Grid(container);
 		grid.setSizeFull();
 		grid.setEditorEnabled(editorEnabled);
 		grid.setEditorSaveCaption("保存");
 		grid.setEditorCancelCaption("取消");
-		grid.setHeightByRows(rows);
-		grid.setHeightMode(HeightMode.ROW);
-		grid.setColumnOrder();
+		//grid.setHeightByRows(rows);
+		//grid.setHeightMode(HeightMode.ROW);
+		grid.setHeight(Page.getCurrent().getBrowserWindowHeight()-255, Unit.PIXELS);
 		// Handle selection in single-selection mode
 		grid.setSelectionMode(SelectionMode.MULTI);
 		if(colOrder!=null){
@@ -391,28 +451,41 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		}
 		Field[] fields= vo.getClass().getDeclaredFields();
 		for (Field voField : fields) {
+			
+			//设置隐藏列
 			HideInGrid hideProperty = voField.getAnnotation(HideInGrid.class);
 			if(hideProperty!=null){
 				grid.removeColumn(voField.getName());
 				continue;
 			}
+			//设置表头
 			String caption = getFieldDisName(voField);
-			
 			Column column = grid.getColumn(voField.getName());
+			column.setHeaderCaption(caption);
 			//设置表格只读属性
 			FormProperty formProperty = voField.getAnnotation(FormProperty.class);
 			if(formProperty!=null && formProperty.readonly()){
 				column.setEditable(false);
 				continue;
 			}
-			column.setHeaderCaption(caption);
+			//设置render
+			if(Boolean.class.equals(voField.getType())){
+				System.out.println("boolean");
+				/*column.setRenderer(new HtmlRenderer(),new StringToBooleanConverter(FontAwesome.CHECK_CIRCLE_O.getHtml(),
+				        FontAwesome.CIRCLE_O.getHtml()));*/
+				column.setRenderer(new HtmlRenderer(),new BooleanConverter());
+				
+			}
 			com.vaadin.ui.Field rowEditField =  column.getEditorField();
+			System.out.println(voField.getType());
 			rowEditField.addValidator(new BeanValidator(vo.getClass(), voField.getName()));
 			if(rowEditField instanceof TextField){
 				((TextField)rowEditField).setNullRepresentation("");
 				((TextField)rowEditField).setNullSettingAllowed(true);
 				column.setEditorField(rowEditField);
 			}
+			
+			
 		}
 		
 		grid.addSelectionListener(new SelectionEvent.SelectionListener() {
@@ -447,6 +520,10 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				}
 			}
 		});
+		
+		//添加操作列表
+		//grid.addColumn("id", Long.class);
+		
 		return grid;
 	}
 
@@ -472,6 +549,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						linster.add(entry);
 						editWindow.close();
 						linster.page(1, rows);
+						resetPageBar();
 					} catch (CommitException e) {
 						e.printStackTrace();
 						Notification.show("输入内容有误");
@@ -489,6 +567,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						linster.update(entry);
 						editWindow.close();
 						linster.page(currentPage, rows);
+						grid.deselectAll();
 					} catch (CommitException e) {
 						e.printStackTrace();
 						Notification.show("输入内容有误");
@@ -510,6 +589,10 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		layout.addComponent(submit);
 		layout.addComponent(canel);
 		return layout;
+	}
+	
+	private void resetPageBar(){
+		pageBar.reset(pageBean.getTotalCount(), rows);
 	}
 	
 	@Override

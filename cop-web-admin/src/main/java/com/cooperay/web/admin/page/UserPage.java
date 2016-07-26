@@ -24,7 +24,7 @@ public class UserPage extends VerticalLayout implements View{
 		UserView userView = new UserView();
 		UserPresenter presenter = new UserPresenter(userService, userView);
 		addComponent(presenter.getView());
-		presenter.page(1, 15);
+		presenter.page(1, 50);
 	}
 
 }
