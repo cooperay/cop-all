@@ -12950,3 +12950,8 @@ div.v-layout.v-horizontal.v-widget {
 	width: 35px;
 	height: 35px;
 }
+
+.mytheme .v-slot-main-footer {
+	background-image: -webkit-linear-gradient(top, #66b3ff 2%, #1b87e3 98%);
+	background-image: linear, to bottom, #66b3ff 2%, #1b87e3 98%;
+}

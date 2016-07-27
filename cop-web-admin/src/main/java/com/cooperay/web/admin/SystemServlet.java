@@ -6,9 +6,30 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.vaadin.server.CustomizedSystemMessages;
+import com.vaadin.server.SystemMessages;
+import com.vaadin.server.SystemMessagesInfo;
+import com.vaadin.server.SystemMessagesProvider;
+import com.vaadin.server.VaadinService;
 import com.vaadin.spring.server.SpringVaadinServlet;
 
 public class SystemServlet extends SpringVaadinServlet {
+	
+	@Override
+	protected void servletInitialized() throws ServletException {
+		// TODO Auto-generated method stub
+		super.servletInitialized();
+		VaadinService.getCurrent().setSystemMessagesProvider(new SystemMessagesProvider() {
+			@Override
+			public SystemMessages getSystemMessages(SystemMessagesInfo systemMessagesInfo) {
+				CustomizedSystemMessages customizedSystemMessages = new CustomizedSystemMessages();
+				customizedSystemMessages.setSessionExpiredCaption("会话超时");
+				customizedSystemMessages.setSessionExpiredMessage("长时间未操作会话已经超时,点击这里或者按ESC键继续");
+				return customizedSystemMessages;
+			}
+		});
+	}
+	
 	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)

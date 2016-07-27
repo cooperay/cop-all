@@ -1,12 +1,18 @@
 package com.cooperay.web.vaadin.base.view;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.StringReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ChoiceFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -16,12 +22,16 @@ import com.cooperay.common.page.PageBean;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.cooperay.web.vaadin.base.ann.HideInForm;
 import com.cooperay.web.vaadin.base.ann.HideInGrid;
+import com.cooperay.web.vaadin.base.ann.SeachProperty;
 import com.cooperay.web.vaadin.base.converter.BooleanConverter;
+import com.cooperay.web.vaadin.base.enums.BooleanEnum;
 import com.cooperay.web.vaadin.component.ConfimWindow;
 import com.cooperay.web.vaadin.component.PageBar;
 import com.cooperay.web.vaadin.component.PageBar.PageBarEvent;
 import com.cooperay.web.vaadin.component.PageBar.PageBarExprotEvent;
+import com.vaadin.client.ui.VOptionGroup;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitEvent;
@@ -29,28 +39,36 @@ import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.GeneratedPropertyContainer;
+import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.PropertyValueGenerator;
+import com.vaadin.data.util.PropertysetItem;
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.data.util.converter.StringToBooleanConverter;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.renderers.NumberRenderer;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -66,6 +84,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	private BaseViewLinster<T> linster;
 	private T entry;  
 	private V vo;
+	private V seachEntry;
 	private List<T> selectedList;  //选中列表
 	
 	
@@ -103,6 +122,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	public BaseView(T t,String caption,V vo,Object[] colOrder) {
 		entry = t;
 		this.vo = vo;
+		this.seachEntry = vo;
 		this.colOrder = colOrder;
 		init(caption);
 	}
@@ -208,7 +228,10 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	 * @参数：@return
 	 */
 	protected Component createToolBar(){
+		HorizontalLayout toolbar = new HorizontalLayout();
+		toolbar.setSizeFull();
 		HorizontalLayout layout = new HorizontalLayout();
+		layout.setSizeUndefined();
 		/*Label title = new Label("编辑区域：");
 		layout.addComponent(title);
 		*/
@@ -301,6 +324,12 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		layout.addComponent(update);
 		layout.addComponent(del);
 		layout.addComponent(refresh);
+		toolbar.addComponent(layout);
+
+		Component seachForm = createSeachForm();
+		toolbar.addComponent(seachForm);
+		toolbar.setComponentAlignment(seachForm, Alignment.TOP_RIGHT);
+		
 		
 		//创建搜索区域
 		/*TextField textField = new TextField();
@@ -308,8 +337,114 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		textField.setInputPrompt("mingcheng");
 		layout.addComponent(textField);*/
 		
+		return toolbar;
+	}
+	
+	/**
+	 * 创建搜索条
+	 * @return
+	 */
+	protected Component createSeachForm() {
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setWidthUndefined();
+		//layout.setSpacing(true);
+		
+		final BeanFieldGroup<V> binder =  new BeanFieldGroup(seachEntry.getClass());
+		binder.setItemDataSource(seachEntry);
+		Field[] fields= vo.getClass().getDeclaredFields();
+		fieldCount = fields.length;
+		//final FieldGroup binder =  new FieldGroup();
+		for (Field voField : fields) {
+			//判断是否在表单中隐藏
+			SeachProperty seachProperty = voField.getAnnotation(SeachProperty.class);
+			if(seachProperty==null){
+				continue;
+			}
+			com.vaadin.ui.Field formField = null;
+			if(Enum.class.isAssignableFrom(voField.getType())){
+				formField = binder.buildAndBind(null, voField.getName(), ComboBox.class);
+			}else {
+				formField = binder.buildAndBind(null,voField.getName());
+			}
+			
+			if(formField instanceof TextField){
+				formField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+				((TextField)formField).setInputPrompt(seachProperty.text());
+				((TextField)formField).setNullRepresentation("");
+				((TextField)formField).setNullSettingAllowed(false);
+			}else if(formField instanceof ComboBox){
+				formField.addStyleName(ValoTheme.COMBOBOX_SMALL);
+				((ComboBox) formField).setInputPrompt(seachProperty.text());
+			}else if(formField instanceof DateField){
+				formField.addStyleName(ValoTheme.DATEFIELD_SMALL);
+				((PopupDateField) formField).setInputPrompt(seachProperty.text());
+			}
+			
+			formField.removeAllValidators();
+			layout.addComponent(formField);
+		}
+		
+		Button button = new Button("搜索",FontAwesome.SEARCH);
+		button.addStyleName(ValoTheme.BUTTON_SMALL);
+		button.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		button.addClickListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				try {
+					binder.commit();
+				} catch (CommitException e1) {
+					log.error("搜索条件提交失败");
+				}
+				Field[] fields= seachEntry.getClass().getDeclaredFields();
+				Map<String, Object> param = new HashMap<>();
+				//final FieldGroup binder =  new FieldGroup();
+				for (Field voField : fields) {
+					//判断是否在表单中隐藏
+					SeachProperty seachProperty = voField.getAnnotation(SeachProperty.class);
+					if(seachProperty==null){
+						continue;
+					}
+					Object value = null;
+					try {
+						PropertyDescriptor pd = new PropertyDescriptor(voField.getName(),seachEntry.getClass());
+						value = pd.getReadMethod().invoke(seachEntry);
+					} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						log.debug("获取搜索实体属性值失败");
+						e.printStackTrace();
+					}
+					if(value!=null){
+						if(value instanceof BooleanEnum){
+							BooleanEnum enum1 = (BooleanEnum)value;
+							value = enum1.getBooleanEnum();
+						}else if(value instanceof Enum){ 
+							Enum enum1 = (Enum)value;
+							value = enum1.name();
+						}
+						param.put(voField.getName(), value);
+					}
+				}
+			}
+		});
+		layout.addComponent(button);
+		Button reset = new Button("重置");
+		reset.addStyleName(ValoTheme.BUTTON_SMALL);
+		reset.addClickListener(new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Class<V> class1 = (Class<V>)seachEntry.getClass();
+				try {
+					seachEntry = class1.newInstance();
+					binder.setItemDataSource(seachEntry);
+				} catch (InstantiationException | IllegalAccessException e) {
+					log.error("$==> 初始化搜索类失败 "+entry.getClass());
+				}
+			}
+		});
+		layout.addComponent(reset);
 		return layout;
 	}
+	
+	
 	
 	public Component createForm(String type){
 		return createForm(type,1);
@@ -438,12 +573,18 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		// Create a grid bound to the container
 		grid = new Grid(container);
 		grid.setSizeFull();
+		//设置列重新排序
+		grid.setColumnReorderingAllowed(true);
+		//设置列折叠
+		for (Column c : grid.getColumns()) {
+        	c.setHidable(true);
+        }
 		grid.setEditorEnabled(editorEnabled);
 		grid.setEditorSaveCaption("保存");
 		grid.setEditorCancelCaption("取消");
 		//grid.setHeightByRows(rows);
 		//grid.setHeightMode(HeightMode.ROW);
-		grid.setHeight(Page.getCurrent().getBrowserWindowHeight()-255, Unit.PIXELS);
+		grid.setHeight(Page.getCurrent().getBrowserWindowHeight()-290, Unit.PIXELS);
 		// Handle selection in single-selection mode
 		grid.setSelectionMode(SelectionMode.MULTI);
 		if(colOrder!=null){
@@ -455,7 +596,11 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			//设置隐藏列
 			HideInGrid hideProperty = voField.getAnnotation(HideInGrid.class);
 			if(hideProperty!=null){
-				grid.removeColumn(voField.getName());
+				try{
+					grid.removeColumn(voField.getName());
+				}catch (IllegalArgumentException e) {
+					log.debug("Vo属性在Grid中不存在");
+				}
 				continue;
 			}
 			//设置表头
@@ -470,14 +615,12 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			}
 			//设置render
 			if(Boolean.class.equals(voField.getType())){
-				System.out.println("boolean");
 				/*column.setRenderer(new HtmlRenderer(),new StringToBooleanConverter(FontAwesome.CHECK_CIRCLE_O.getHtml(),
 				        FontAwesome.CIRCLE_O.getHtml()));*/
 				column.setRenderer(new HtmlRenderer(),new BooleanConverter());
 				
 			}
 			com.vaadin.ui.Field rowEditField =  column.getEditorField();
-			System.out.println(voField.getType());
 			rowEditField.addValidator(new BeanValidator(vo.getClass(), voField.getName()));
 			if(rowEditField instanceof TextField){
 				((TextField)rowEditField).setNullRepresentation("");

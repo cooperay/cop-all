@@ -11,9 +11,14 @@ import com.alibaba.dubbo.rpc.RpcException;
 import com.cooperay.web.admin.page.UserPage;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
+import com.vaadin.server.SystemMessages;
+import com.vaadin.server.SystemMessagesInfo;
+import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.server.SpringVaadinServlet;
@@ -73,6 +78,7 @@ public class AdminUI extends UI {
 				notification.show(Page.getCurrent());
 			}
 		});
+		
     }
 
     

@@ -8,6 +8,8 @@ import com.cooperay.facade.admin.entity.User.State;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.cooperay.web.vaadin.base.ann.HideInForm;
 import com.cooperay.web.vaadin.base.ann.HideInGrid;
+import com.cooperay.web.vaadin.base.ann.SeachProperty;
+import com.cooperay.web.vaadin.base.enums.BooleanEnum;
 
 public class UserVo {
 
@@ -16,6 +18,7 @@ public class UserVo {
 	@HideInForm
 	private Long id;
 
+	@SeachProperty(text="用户名")
 	@FormProperty(text = "用户名")
 	@NotNull
 	private String userName;
@@ -35,11 +38,24 @@ public class UserVo {
 	@FormProperty(text="状态")
 	private State state;
 	
+	@SeachProperty(text="--是否启用--")
+	@HideInGrid
+	@HideInForm
+	private BooleanEnum isEnable2;
+
+	
 	@FormProperty(text="是否启用")
 	private Boolean isEnable;
 	
-	
-	
+
+	public BooleanEnum getIsEnable2() {
+		return isEnable2;
+	}
+
+	public void setIsEnable2(BooleanEnum isEnable2) {
+		this.isEnable2 = isEnable2;
+	}
+
 	public Boolean getIsEnable() {
 		return isEnable;
 	}
