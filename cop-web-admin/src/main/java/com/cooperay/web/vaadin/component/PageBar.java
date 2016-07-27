@@ -135,6 +135,15 @@ public class PageBar extends HorizontalLayout {
 		pageBarEventLinster.pageChangeEvent(new PageBarEvent(pageButton, rows));
 	}
 	
+	/**
+	 * 
+	* @作者：李阳
+	* @时间：2016年6月22日 上午8:48:17
+	* @描述：初始化
+	* @参数： 
+	* @返回: void 
+	* @异常:
+	 */
 	private void init(){
 		/*if(allCount <= rows || allCount <= 0){
 			addComponent(createInfoLabel());
@@ -160,6 +169,17 @@ public class PageBar extends HorizontalLayout {
 		addComponent(createExprotAll());
 	}
 	
+	/**
+	 * 
+	* @作者：李阳
+	* @时间：2016年6月22日 上午8:48:17
+	* @描述：创建分页工具条，只包含中间页面按钮部分
+	* @参数： @param startPage 开始页面
+	* @参数： @param pageCount 工具条中页数
+	* @参数： @return
+	* @返回: List<PageButton> 创建的分页按钮数组 
+	* @异常:
+	 */
 	private List<PageButton> createPageButton(Integer startPage,Integer pageCount){
 		pages = new ArrayList<>();
 		pagesLayout.removeAllComponents();
@@ -210,6 +230,15 @@ public class PageBar extends HorizontalLayout {
 	/**
 	 * 刷新当前页面选中状态 以及页面信息libel
 	 * */
+	/**
+	 * 
+	* @作者：李阳
+	* @时间：2016年6月22日 上午8:48:17
+	* @描述：刷新当前选中页面的按钮状态，以及页面infoButton的文字信息
+	* @参数： 
+	* @返回: void 
+	* @异常:
+	 */
 	private void refreshSelected(){
 		for(PageButton pb : pages){
 			if(curentPage.equals(pb)){
@@ -222,8 +251,13 @@ public class PageBar extends HorizontalLayout {
 	}
 	
 	/**
-	 * 创建更改rows的滑动条
-	 * @return
+	 * 
+	* @作者：李阳
+	* @时间：Jul 27, 2016
+	* @描述：创建每一页显示行数的slider
+	* @参数： @return
+	* @返回: Component 
+	* @异常:
 	 */
 	private Component createSlider(){
 		Slider slider = new Slider(100, 1000);
@@ -242,8 +276,13 @@ public class PageBar extends HorizontalLayout {
 	}
 
 	/**
-	 * 创建信息显示标签
-	 * @return
+	 * 
+	* @作者：李阳
+	* @时间：Jul 27, 2016
+	* @描述：创建分页显示信息
+	* @参数： @return
+	* @返回: String 
+	* @异常:
 	 */
 	private String getPageInfoString(){
 		String infoStr = "记录:"+rows+"/"+allCount+"  页数:";

@@ -2,16 +2,15 @@ package com.cooperay.web.vaadin.base.view;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.io.StringReader;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.text.ChoiceFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,13 +24,14 @@ import com.cooperay.web.vaadin.base.ann.HideInGrid;
 import com.cooperay.web.vaadin.base.ann.SeachProperty;
 import com.cooperay.web.vaadin.base.converter.BooleanConverter;
 import com.cooperay.web.vaadin.base.enums.BooleanEnum;
+import com.cooperay.web.vaadin.base.utils.ExcelUtil;
 import com.cooperay.web.vaadin.component.ConfimWindow;
+import com.cooperay.web.vaadin.component.DownloadWindow;
 import com.cooperay.web.vaadin.component.PageBar;
 import com.cooperay.web.vaadin.component.PageBar.PageBarEvent;
 import com.cooperay.web.vaadin.component.PageBar.PageBarExprotEvent;
-import com.vaadin.client.ui.VOptionGroup;
+import com.vaadin.data.Container.Indexed;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitEvent;
@@ -39,21 +39,18 @@ import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.GeneratedPropertyContainer;
-import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.PropertyValueGenerator;
-import com.vaadin.data.util.PropertysetItem;
-import com.vaadin.data.util.converter.Converter;
-import com.vaadin.data.util.converter.StringToBooleanConverter;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.event.SelectionEvent;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.AbstractField;
+import com.vaadin.server.Resource;
+import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
@@ -62,16 +59,15 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.renderers.HtmlRenderer;
-import com.vaadin.ui.renderers.NumberRenderer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
 public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewInterface<T> {
@@ -139,6 +135,14 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		}
 	}
 	
+	/**
+	* @作者：李阳
+	* @时间：Jul 27, 2016
+	* @描述：设置分页数据，新增，删除都需要调用该方法刷新grid数据
+	* @参数： @param pageBean分页实体
+	* @返回: void 
+	* @异常:
+	 */
 	@Override
 	public void setPage(PageBean pageBean) {
 		this.pageBean = pageBean;
@@ -157,6 +161,15 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		selectedList = null;
 	}
 
+	/**
+	 * 
+	* @作者：李阳
+	* @时间：Jul 27, 2016
+	* @描述：初始化
+	* @参数： @param caption 操作区域标题
+	* @返回: void 
+	* @异常:
+	 */
 	protected void init(String caption) {
 		log.debug("init base view");
 		Panel panel = new Panel(caption);
@@ -198,8 +211,48 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			
 			@Override
 			public void exprot(PageBarExprotEvent event) {
-				System.out.println(pageBean.getRecordList());
-				Notification.show("导出记录 "+event.getPage()+" "+event.getRows(),Type.WARNING_MESSAGE);
+				List<Column> columns = grid.getColumns();
+				String basePath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
+				String realeName ="temp/exprot/"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".xls";
+				String fileName = basePath+"/"+realeName;
+				String title= "订单";
+				//组合表头
+				ArrayList<String> headerCols = new ArrayList<>();
+				ArrayList<Object> cols = new ArrayList<>();
+				for (Column column : columns) {
+					if(!column.isHidden()){
+						headerCols.add(column.getHeaderCaption());
+						cols.add(column.getPropertyId());
+					}
+				}
+				String[] rowsName = new String[headerCols.size()];
+				for (int i = 0; i < headerCols.size(); i++) {
+					rowsName[i] = headerCols.get(i);
+				}
+				
+				//组合数据
+				List<Object[]> dataList = new ArrayList<Object[]>();
+				Indexed indexed = grid.getContainerDataSource();
+				Iterator ids = indexed.getItemIds().iterator();
+				Integer pageRows = indexed.size();
+				while (ids.hasNext()) {
+					Object id = (Object) ids.next();
+					Item item = indexed.getItem(id);
+					Object[] objects = new Object[cols.size()];
+					for (int i = 0; i < objects.length; i++) {
+						objects[i] = item.getItemProperty(cols.get(i)).getValue();
+					}
+					dataList.add(objects);
+				}
+				synchronized (rows) {
+					ExcelUtil.exportExcel(fileName, title, rowsName, dataList);
+				}
+				//System.out.println(VaadinService.getCurrent().getBaseDirectory());
+				//Page.getCurrent().open(Page.getCurrent().getLocation()+"/"+realeName, "下载");
+				
+				UI.getCurrent().addWindow(new DownloadWindow(fileName));
+				
+				//Notification.show("导出记录 "+event.getPage()+" "+event.getRows(),Type.WARNING_MESSAGE);
 			}
 		});
 		return pageBar;
@@ -330,19 +383,19 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		toolbar.addComponent(seachForm);
 		toolbar.setComponentAlignment(seachForm, Alignment.TOP_RIGHT);
 		
-		
-		//创建搜索区域
-		/*TextField textField = new TextField();
-		textField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
-		textField.setInputPrompt("mingcheng");
-		layout.addComponent(textField);*/
-		
 		return toolbar;
 	}
 	
 	/**
-	 * 创建搜索条
-	 * @return
+	 * 
+	* @作者：李阳
+	* @时间：Jul 27, 2016
+	* @描述：创建搜索工具条，利用反射扫表seachEntry（VO)中使用@SeachProperty的注解，将注解的属性影射成相应的空间。
+	* 		搜索按钮会将搜索条件提交到seachEntry并转换成Map参数，Map的key未属性名称，
+	*       重置按钮将重置所有搜索条件
+	* @参数： @return
+	* @返回: Component 
+	* @异常:
 	 */
 	protected Component createSeachForm() {
 		HorizontalLayout layout = new HorizontalLayout();
@@ -573,7 +626,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		// Create a grid bound to the container
 		grid = new Grid(container);
 		grid.setSizeFull();
-		//设置列重新排序
+		//设置列重新
 		grid.setColumnReorderingAllowed(true);
 		//设置列折叠
 		for (Column c : grid.getColumns()) {
