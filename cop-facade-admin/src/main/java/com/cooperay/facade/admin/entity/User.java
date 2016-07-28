@@ -9,6 +9,8 @@ public class User extends BaseEntity {
     private String password;
 
     private Boolean isEnable;
+    
+    private Double age = 0d;
 
     private State state;
     public enum State{
@@ -45,7 +47,16 @@ public class User extends BaseEntity {
     }
 
     
-    public State getState() {
+    
+    public Double getAge() {
+		return age;
+	}
+
+	public void setAge(Double age) {
+		this.age = age;
+	}
+
+	public State getState() {
 		return state;
 	}
 

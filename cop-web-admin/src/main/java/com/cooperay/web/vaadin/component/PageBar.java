@@ -48,10 +48,12 @@ public class PageBar extends HorizontalLayout {
 	public void reset(Integer allCount,Integer rows){
 		removeAllComponents();
 		this.allCount = allCount;
-		this.rows = rows;
+		//this.rows = rows;
 		curentPage =null;
 		init();
 	}
+	
+	
 	
 	/**
 	 * @作者：李阳
@@ -183,7 +185,6 @@ public class PageBar extends HorizontalLayout {
 	private List<PageButton> createPageButton(Integer startPage,Integer pageCount){
 		pages = new ArrayList<>();
 		pagesLayout.removeAllComponents();
-		
 		HorizontalLayout h = new HorizontalLayout();
 		pagesLayout.addComponent(h);
 		
@@ -275,6 +276,37 @@ public class PageBar extends HorizontalLayout {
 		return slider;
 	}
 
+	/**
+	 * 
+	* @作者：李阳
+	* @时间：Jul 28, 2016
+	* @描述：选中指定的页面，如果指定的分页大于所有分页选中第一页
+	* @参数： @param pageNum
+	* @返回: void 
+	* @异常:
+	 */
+	public void resetPageBarSelectPage(Integer pageNum,Integer allCount,Integer rows){
+		Integer startPage =1;
+		if(pages!=null && pages.size()>0){
+			
+		}
+		startPage= pages.get(0).getPage();
+		reset(allCount,this.rows); //重置分页
+		if(pageNum > pageCount){
+			return ;
+		}
+		//重新选择
+		createPageButton(startPage,pageCount);
+		for (PageButton page : pages) {
+			System.out.println(page.getPage()+"  "+pageNum);
+			if(page.getPage().equals(pageNum)){
+				curentPage = page;
+				break;
+			}
+		}
+		refreshSelected();
+	}
+	
 	/**
 	 * 
 	* @作者：李阳

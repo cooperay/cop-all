@@ -2,6 +2,8 @@ package com.cooperay.web.admin.vo;
 
 import java.util.Date;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
 import com.cooperay.facade.admin.entity.User.State;
@@ -36,6 +38,7 @@ public class UserVo {
 	
 	@NotNull
 	@FormProperty(text="状态")
+	@HideInForm(exclude={"update"})
 	private State state;
 	
 	@SeachProperty(text="--是否启用--")
@@ -43,10 +46,24 @@ public class UserVo {
 	@HideInForm
 	private BooleanEnum isEnable2;
 
+	@DecimalMax(value="1")
+	@FormProperty(text="Bar测试")
+	private Double age;
 	
+	//@HideInForm(exclude={"update"})
 	@FormProperty(text="是否启用")
 	private Boolean isEnable;
 	
+
+	
+	
+	public Double getAge() {
+		return age;
+	}
+
+	public void setAge(Double age) {
+		this.age = age;
+	}
 
 	public BooleanEnum getIsEnable2() {
 		return isEnable2;

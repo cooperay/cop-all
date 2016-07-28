@@ -25,6 +25,7 @@ import com.cooperay.web.vaadin.base.ann.SeachProperty;
 import com.cooperay.web.vaadin.base.converter.BooleanConverter;
 import com.cooperay.web.vaadin.base.enums.BooleanEnum;
 import com.cooperay.web.vaadin.base.utils.ExcelUtil;
+import com.cooperay.web.vaadin.component.CRUDToolBar;
 import com.cooperay.web.vaadin.component.ConfimWindow;
 import com.cooperay.web.vaadin.component.DownloadWindow;
 import com.cooperay.web.vaadin.component.PageBar;
@@ -72,30 +73,32 @@ import com.vaadin.ui.themes.ValoTheme;
 
 public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewInterface<T> {
 	protected static final Logger log = LoggerFactory.getLogger(BaseView.class);
-	final String STATE_SAVE = "save";
-	public static final String STATE_UPDATE = "update";
-	private static final long serialVersionUID = 1L;
-	private static final Integer FIELD_COL_SIZE = 10;
-	private Integer fieldCount;
-	private BaseViewLinster<T> linster;
-	private T entry;  
-	private V vo;
-	private V seachEntry;
-	private List<T> selectedList;  //选中列表
+	final String STATE_SAVE = "create";
+	protected static final String STATE_UPDATE = "update";
+	protected static final long serialVersionUID = 1L;
+	protected static final Integer FIELD_COL_SIZE = 10;
+	protected Integer fieldCount;
+	protected BaseViewLinster<T> linster;
+	protected T entry;  
+	protected V vo;
+	protected V seachEntry;
+	protected List<T> selectedList;  //选中列表
 	
 	
 	/**初示参数**/
-	private Integer rows = 100;
-	private Integer currentPage = 1;
-	private PageBean pageBean;
-	private boolean editorEnabled = true;
-	private List<T> list;  //初始列表
-	private Object[] colOrder; //列表顺序
+	protected Integer rows = 100;
+	protected Integer currentPage = 1;
+	protected PageBean pageBean;
+	protected boolean editorEnabled = true;
+	protected List<T> list;  //初始列表
+	protected Object[] colOrder; //列表顺序
 	
-	private Window editWindow;  //编辑窗口
-	private Grid grid;
-	private PageBar pageBar;
-	private VerticalLayout panelContent;
+	protected Window editWindow;  //编辑窗口
+	protected Grid grid;
+	protected PageBar pageBar;
+	protected VerticalLayout panelContent;
+	
+	protected CRUDToolBar optTooBar; //CRUD 按钮工具条
 	
 	public BaseView(T t) {
 		this(t,"编辑区域");
@@ -204,59 +207,67 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		pageBar.setPageBarExprotLinster(new PageBar.PageBarExprotLinster() {
 			@Override
 			public void exprotAll(PageBarExprotEvent event) {
-				
-				Notification.show("导出所有记录",Type.WARNING_MESSAGE);
-				
+				if(pageBean.getTotalCount() > 20000){
+					Notification.show("需要导出的记录数过多请使用分页导出或更改查询条件",Type.WARNING_MESSAGE);
+					return;
+				}
+				linster.page(1, pageBean.getTotalCount());
+				exportExcel();
+				linster.page(pageBean.getCurrentPage(),rows);
 			}
 			
 			@Override
 			public void exprot(PageBarExprotEvent event) {
-				List<Column> columns = grid.getColumns();
-				String basePath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
-				String realeName ="temp/exprot/"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".xls";
-				String fileName = basePath+"/"+realeName;
-				String title= "订单";
-				//组合表头
-				ArrayList<String> headerCols = new ArrayList<>();
-				ArrayList<Object> cols = new ArrayList<>();
-				for (Column column : columns) {
-					if(!column.isHidden()){
-						headerCols.add(column.getHeaderCaption());
-						cols.add(column.getPropertyId());
-					}
-				}
-				String[] rowsName = new String[headerCols.size()];
-				for (int i = 0; i < headerCols.size(); i++) {
-					rowsName[i] = headerCols.get(i);
-				}
 				
-				//组合数据
-				List<Object[]> dataList = new ArrayList<Object[]>();
-				Indexed indexed = grid.getContainerDataSource();
-				Iterator ids = indexed.getItemIds().iterator();
-				Integer pageRows = indexed.size();
-				while (ids.hasNext()) {
-					Object id = (Object) ids.next();
-					Item item = indexed.getItem(id);
-					Object[] objects = new Object[cols.size()];
-					for (int i = 0; i < objects.length; i++) {
-						objects[i] = item.getItemProperty(cols.get(i)).getValue();
-					}
-					dataList.add(objects);
-				}
-				synchronized (rows) {
-					ExcelUtil.exportExcel(fileName, title, rowsName, dataList);
-				}
-				//System.out.println(VaadinService.getCurrent().getBaseDirectory());
-				//Page.getCurrent().open(Page.getCurrent().getLocation()+"/"+realeName, "下载");
-				
-				UI.getCurrent().addWindow(new DownloadWindow(fileName));
-				
+				exportExcel();
 				//Notification.show("导出记录 "+event.getPage()+" "+event.getRows(),Type.WARNING_MESSAGE);
 			}
 		});
 		return pageBar;
 	}
+	
+	
+	protected void exportExcel() {
+		List<Column> columns = grid.getColumns();
+		String basePath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
+		String realeName ="temp/exprot/"+new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())+".xls";
+		String fileName = basePath+"/"+realeName;
+		String title= "订单";
+		//组合表头
+		ArrayList<String> headerCols = new ArrayList<>();
+		ArrayList<Object> cols = new ArrayList<>();
+		for (Column column : columns) {
+			if(!column.isHidden()){
+				headerCols.add(column.getHeaderCaption());
+				cols.add(column.getPropertyId());
+			}
+		}
+		String[] rowsName = new String[headerCols.size()];
+		for (int i = 0; i < headerCols.size(); i++) {
+			rowsName[i] = headerCols.get(i);
+		}
+		
+		//组合数据
+		List<Object[]> dataList = new ArrayList<Object[]>();
+		Indexed indexed = grid.getContainerDataSource();
+		Iterator ids = indexed.getItemIds().iterator();
+		Integer pageRows = indexed.size();
+		while (ids.hasNext()) {
+			Object id = (Object) ids.next();
+			Item item = indexed.getItem(id);
+			Object[] objects = new Object[cols.size()];
+			for (int i = 0; i < objects.length; i++) {
+				objects[i] = item.getItemProperty(cols.get(i)).getValue();
+			}
+			dataList.add(objects);
+		}
+		ExcelUtil.exportExcel(fileName, title, rowsName, dataList);
+		//System.out.println(VaadinService.getCurrent().getBaseDirectory());
+		//Page.getCurrent().open(Page.getCurrent().getLocation()+"/"+realeName, "下载");
+		
+		UI.getCurrent().addWindow(new DownloadWindow(fileName));
+	}
+	
 	
 	/**
 	 * @作者：李阳
@@ -283,40 +294,9 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	protected Component createToolBar(){
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setSizeFull();
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setSizeUndefined();
-		/*Label title = new Label("编辑区域：");
-		layout.addComponent(title);
-		*/
-		//创建操作按钮
-		Button add  = new Button("新增");
-		add.addStyleName(ValoTheme.BUTTON_SMALL);
-		add.addStyleName(ValoTheme.BUTTON_PRIMARY);
-		add.setIcon(FontAwesome.PLUS);
-		add.addClickListener(new Button.ClickListener() {
+		optTooBar = new CRUDToolBar(new CRUDToolBar.CRUDLinster() {
 			@Override
-			public void buttonClick(ClickEvent event) {
-				Class<T> class1 = (Class<T>)entry.getClass();
-				try {
-					entry = class1.newInstance();
-					editWindow = createEditWindow(STATE_SAVE);
-			        getUI().addWindow(editWindow);
-				} catch (InstantiationException | IllegalAccessException e) {
-					log.error("$==> 初始化实体类失败 "+entry.getClass());
-				}
-				
-				
-			}
-		});
-		
-		Button update  = new Button("修改");
-		update.setIcon(FontAwesome.EDIT);
-		update.addStyleName(ValoTheme.BUTTON_SMALL);
-		update.addStyleName(ValoTheme.BUTTON_PRIMARY);
-		update.addClickListener(new Button.ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
+			public void update() {
 				if(selectedList==null || selectedList.size()<=0){
 					Notification.show("未选中内容",Type.WARNING_MESSAGE);
 					return;
@@ -328,15 +308,17 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				editWindow = createEditWindow(STATE_UPDATE);
 		        getUI().addWindow(editWindow);
 			}
-		});
-		
-		Button del  = new Button("删除");
-		del.addStyleName(ValoTheme.BUTTON_SMALL);
-		del.addStyleName(ValoTheme.BUTTON_DANGER);
-		del.setIcon(FontAwesome.TRASH);
-		del.addClickListener(new Button.ClickListener() {
+			
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void refresh() {
+				int i = currentPage;
+				linster.page(currentPage, rows);
+				//resetPageBar();
+				pageBar.resetPageBarSelectPage(i,pageBean.getTotalCount(), rows);
+				
+			}
+			@Override
+			public void delete() {
 				if(selectedList == null || selectedList.size()<=0){
 					Notification.show("未选中内容",Type.WARNING_MESSAGE);
 					return;
@@ -361,24 +343,20 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				});
 				getUI().addWindow(confimWindow);	
 			}
-		});
-		
-		Button refresh  = new Button("刷新");
-		refresh.setIcon(FontAwesome.REFRESH);
-		refresh.addStyleName(ValoTheme.BUTTON_SMALL);
-		refresh.addClickListener(new Button.ClickListener() {
 			
 			@Override
-			public void buttonClick(ClickEvent event) {
-				linster.page(currentPage, rows);
+			public void create() {
+				Class<T> class1 = (Class<T>)entry.getClass();
+				try {
+					entry = class1.newInstance();
+					editWindow = createEditWindow(STATE_SAVE);
+			        getUI().addWindow(editWindow);
+				} catch (InstantiationException | IllegalAccessException e) {
+					log.error("$==> 初始化实体类失败 "+entry.getClass());
+				}
 			}
 		});
-		layout.addComponent(add);
-		layout.addComponent(update);
-		layout.addComponent(del);
-		layout.addComponent(refresh);
-		toolbar.addComponent(layout);
-
+		toolbar.addComponent(optTooBar);
 		Component seachForm = createSeachForm();
 		toolbar.addComponent(seachForm);
 		toolbar.setComponentAlignment(seachForm, Alignment.TOP_RIGHT);
@@ -510,7 +488,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	 * @描述：创建form用来修改和新增
 	 * @参数：@return
 	 */
-	public Component createForm(String type,Integer cols){
+	protected Component createForm(String type,Integer cols){
 		List<FormLayout> colForms = new ArrayList<>();
 		VerticalLayout colsLayout = new VerticalLayout();
 		List<com.vaadin.ui.Field> formFields = new ArrayList<>();
@@ -533,8 +511,22 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			//判断是否在表单中隐藏
 			HideInForm hideProperty = voField.getAnnotation(HideInForm.class);
 			if(hideProperty!=null){
-				continue;
+				boolean isExclude = false;
+				if(hideProperty.exclude()!=null){
+					String[] strings = hideProperty.exclude();
+					for(int i = 0 ;i<strings.length ;i++){
+						if(type.equals(strings[i])){
+							isExclude =true; //排除继续创建该属性
+						}
+					}
+				}
+				//如果不排除就跳过该属性
+				if(!isExclude){
+					continue;
+				}
 			}
+			
+			
 			//判断是否能得到名称 
 			String caption = getFieldDisName(voField);  
 			if(caption == null){
@@ -603,7 +595,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	 * @描述：创建通用表格
 	 * @参数：@return
 	 */
-	private Component createGrid(){
+	protected Component createGrid(){
 		// Have a container of some type to contain the data
 		BeanItemContainer<T> container = new BeanItemContainer(entry.getClass(),list);
 		//添加操作列
