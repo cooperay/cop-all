@@ -19,6 +19,7 @@ import com.vaadin.server.SystemMessagesInfo;
 import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.server.SpringVaadinServlet;
@@ -53,6 +54,8 @@ public class AdminUI extends UI {
     @Override
     protected void init(VaadinRequest vaadinRequest) {
     	setContent(mainView);
+    	
+    	
 		mainView.setNav();
 		UI.getCurrent().setErrorHandler(new ErrorHandler() {
 

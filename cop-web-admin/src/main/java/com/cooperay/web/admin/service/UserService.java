@@ -19,6 +19,7 @@ public class UserService implements BaseFacadeInterface<User> {
 	
 	@Override
 	public void add(User t) {
+		System.out.println(t.getDeptId());
 		userFacade.create(t);
 	}
 

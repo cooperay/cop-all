@@ -2,7 +2,6 @@ package com.cooperay.web.vaadin.base.view;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
@@ -16,13 +15,18 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.cooperay.common.page.PageBean;
+import com.cooperay.web.admin.component.UserSelecter;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.cooperay.web.vaadin.base.ann.HideInForm;
 import com.cooperay.web.vaadin.base.ann.HideInGrid;
 import com.cooperay.web.vaadin.base.ann.SeachProperty;
+import com.cooperay.web.vaadin.base.ann.ServerField;
 import com.cooperay.web.vaadin.base.converter.BooleanConverter;
+import com.cooperay.web.vaadin.base.converter.ConvertEnableIntface;
 import com.cooperay.web.vaadin.base.enums.BooleanEnum;
 import com.cooperay.web.vaadin.base.utils.ExcelUtil;
 import com.cooperay.web.vaadin.component.CRUDToolBar;
@@ -43,11 +47,8 @@ import com.vaadin.data.util.GeneratedPropertyContainer;
 import com.vaadin.data.util.PropertyValueGenerator;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.event.SelectionEvent;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
-import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -406,6 +407,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			}else if(formField instanceof ComboBox){
 				formField.addStyleName(ValoTheme.COMBOBOX_SMALL);
 				((ComboBox) formField).setInputPrompt(seachProperty.text());
+				((ComboBox) formField).setNullSelectionAllowed(true);
 			}else if(formField instanceof DateField){
 				formField.addStyleName(ValoTheme.DATEFIELD_SMALL);
 				((PopupDateField) formField).setInputPrompt(seachProperty.text());
@@ -532,6 +534,10 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			if(caption == null){
 				continue;
 			}
+			
+			
+			
+			
 			Field field = null;
 			try {
 				field = entry.getClass().getDeclaredField(voField.getName());
@@ -547,8 +553,21 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			if(field ==null){
 				continue;
 			}
+			
+			
+			FormProperty formProperty = voField.getAnnotation(FormProperty.class);
 			com.vaadin.ui.Field formField = null;
-			if(Enum.class.isAssignableFrom(field.getType())){
+			if(!formProperty.fieldClass().equals(TextField.class)){
+				Class clazz = formProperty.fieldClass();
+				try {
+					formField = (com.vaadin.ui.Field)clazz.newInstance();
+				} catch (InstantiationException | IllegalAccessException e) {
+					e.printStackTrace();
+					log.error("创建自定义服务器组件失败");
+				}
+				formField.setCaption(caption);
+				binder.bind(formField, field.getName());
+			}else if(Enum.class.isAssignableFrom(field.getType())){
 				formField = binder.buildAndBind(caption,field.getName(),ComboBox.class);
 			}else {
 				formField = binder.buildAndBind(caption,field.getName());
@@ -561,7 +580,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				((TextField)formField).setNullSettingAllowed(true);
 			}
 			//设置只读属性
-			FormProperty formProperty = voField.getAnnotation(FormProperty.class);
+			
 			if(formProperty!=null && formProperty.readonly()){
 				formField.setReadOnly(true);
 			}
@@ -652,8 +671,8 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 			String caption = getFieldDisName(voField);
 			Column column = grid.getColumn(voField.getName());
 			column.setHeaderCaption(caption);
-			//设置表格只读属性
 			FormProperty formProperty = voField.getAnnotation(FormProperty.class);
+			//设置表格只读属性
 			if(formProperty!=null && formProperty.readonly()){
 				column.setEditable(false);
 				continue;
@@ -666,12 +685,26 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 				
 			}
 			com.vaadin.ui.Field rowEditField =  column.getEditorField();
-			rowEditField.addValidator(new BeanValidator(vo.getClass(), voField.getName()));
-			if(rowEditField instanceof TextField){
+			if(!formProperty.fieldClass().equals(TextField.class)){
+				Class clazz = formProperty.fieldClass();
+				try {
+					rowEditField = (com.vaadin.ui.Field)clazz.newInstance();
+					if(rowEditField instanceof ConvertEnableIntface){
+						column.setConverter(((ConvertEnableIntface)rowEditField).getCustomConverter());
+					}
+				} catch (InstantiationException | IllegalAccessException e) {
+					e.printStackTrace();
+					log.error("创建自定义服务器组件失败");
+				}catch (NullPointerException e) {
+					e.printStackTrace();
+					log.error("没有指定convert");
+				}
+			}else if(rowEditField instanceof TextField){
 				((TextField)rowEditField).setNullRepresentation("");
 				((TextField)rowEditField).setNullSettingAllowed(true);
-				column.setEditorField(rowEditField);
 			}
+			rowEditField.addValidator(new BeanValidator(vo.getClass(), voField.getName()));
+			column.setEditorField(rowEditField);
 			
 			
 		}
@@ -739,7 +772,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						linster.page(1, rows);
 						resetPageBar();
 					} catch (CommitException e) {
-						e.printStackTrace();
+						log.debug("$==>form commit error");
 						Notification.show("输入内容有误");
 					}
 				}
@@ -757,7 +790,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						linster.page(currentPage, rows);
 						grid.deselectAll();
 					} catch (CommitException e) {
-						e.printStackTrace();
+						log.debug("$==>form commit error");
 						Notification.show("输入内容有误");
 					}
 				}

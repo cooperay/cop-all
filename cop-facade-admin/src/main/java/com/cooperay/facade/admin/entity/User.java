@@ -10,7 +10,9 @@ public class User extends BaseEntity {
 
     private Boolean isEnable;
     
-    private Double age = 0d;
+    private Double age;
+    
+    private Long deptId;
 
     private State state;
     public enum State{
@@ -46,9 +48,15 @@ public class User extends BaseEntity {
         }
     }
 
-    
-    
-    public Double getAge() {
+	public Long getDeptId() {
+		return deptId;
+	}
+
+	public void setDeptId(Long deptId) {
+		this.deptId = deptId;
+	}
+
+	public Double getAge() {
 		return age;
 	}
 

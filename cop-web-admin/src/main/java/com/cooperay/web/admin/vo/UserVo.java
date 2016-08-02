@@ -7,10 +7,12 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
 import com.cooperay.facade.admin.entity.User.State;
+import com.cooperay.web.admin.component.UserSelecter;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.cooperay.web.vaadin.base.ann.HideInForm;
 import com.cooperay.web.vaadin.base.ann.HideInGrid;
 import com.cooperay.web.vaadin.base.ann.SeachProperty;
+import com.cooperay.web.vaadin.base.ann.ServerField;
 import com.cooperay.web.vaadin.base.enums.BooleanEnum;
 
 public class UserVo {
@@ -46,17 +48,27 @@ public class UserVo {
 	@HideInForm
 	private BooleanEnum isEnable2;
 
-	@DecimalMax(value="1")
 	@FormProperty(text="Bar测试")
 	private Double age;
+	
+	@NotNull
+	@FormProperty(text="用户组",fieldClass=UserSelecter.class)
+	private Long deptId;
 	
 	//@HideInForm(exclude={"update"})
 	@FormProperty(text="是否启用")
 	private Boolean isEnable;
 	
+	
 
-	
-	
+	public Long getDeptId() {
+		return deptId;
+	}
+
+	public void setDeptId(Long deptId) {
+		this.deptId = deptId;
+	}
+
 	public Double getAge() {
 		return age;
 	}

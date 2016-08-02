@@ -11,6 +11,7 @@ import com.vaadin.server.SystemMessages;
 import com.vaadin.server.SystemMessagesInfo;
 import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.server.SpringVaadinServlet;
 
 public class SystemServlet extends SpringVaadinServlet {
@@ -35,6 +36,7 @@ public class SystemServlet extends SpringVaadinServlet {
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		super.service(request, response);
+		//System.out.println(VaadinSession.getCurrent());
 	/*	Object user = request.getSession().getAttribute("user");
 		if(user==null){
 			response.sendRedirect("index.jsp");

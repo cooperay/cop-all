@@ -7,9 +7,10 @@
 		<result column="PASSWORD" jdbcType="VARCHAR" property="password" />
 		<result column="IS_ENABLE" jdbcType="BIT" property="isEnable" />
 		<result column="STATE" jdbcType="VARCHAR" property="state" />
+		<result column="DEPT_ID" jdbcType="BIGINT" property="deptId" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		ID, USER_NAME, PASSWORD, IS_ENABLE,STATE
+		ID, USER_NAME, PASSWORD, IS_ENABLE,STATE,DEPT_ID
 	</sql>
 
 
@@ -55,10 +56,11 @@
 	</delete>
 	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.User">
 		insert into t_user (ID, USER_NAME, PASSWORD,
-		IS_ENABLE,STATE)
+		IS_ENABLE,DEPT_ID,STATE)
 		values (#{id,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR},
 		#{password,jdbcType=VARCHAR},
 		#{isEnable,jdbcType=BIT},
+		#{deptId,jdbcType=BIGINT},
 		#{state,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" parameterType="com.cooperay.facade.admin.entity.User">
@@ -112,6 +114,7 @@
 		set USER_NAME = #{userName,jdbcType=VARCHAR},
 		PASSWORD = #{password,jdbcType=VARCHAR},
 		IS_ENABLE = #{isEnable,jdbcType=BIT},
+		DEPT_ID = #{deptId,jdbcType=BIGINT},
 		STATE = #{state,jdbcType=VARCHAR}
 		where ID = #{id,jdbcType=BIGINT}
 	</update>

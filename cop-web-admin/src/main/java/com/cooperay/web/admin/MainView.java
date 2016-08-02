@@ -12,6 +12,8 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.spring.navigator.SpringViewProvider;
@@ -55,6 +57,7 @@ public class MainView extends VerticalLayout implements View {
 		public void menuSelected(MenuItem selectedItem) {
 			if (this.menuId != null && !"".equals(this.menuId))
 				UI.getCurrent().getNavigator().navigateTo(menuId);
+			//VaadinSession.getCurrent().
 		}
 	}
 
