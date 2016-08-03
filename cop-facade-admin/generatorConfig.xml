@@ -19,7 +19,7 @@
    <!--  <javaClientGenerator type="XMLMAPPER" targetPackage="mlm.dao.base" targetProject="cop-facade-admin">
 		<property name="enableSubPackages" value="true"/>
 	</javaClientGenerator> -->
-    	<table tableName="T_USER" domainObjectName="User" enableCountByExample="false" 
+    	<table tableName="T_DEPT" domainObjectName="Department" enableCountByExample="false" 
     	enableUpdateByExample="false" enableDeleteByExample="false" 
     	enableSelectByExample="false" selectByExampleQueryId="false"/>
     	<!-- 	<table tableName="T_GROUP" domainObjectName="Group" enableCountByExample="false" 

@@ -13,13 +13,16 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.ErrorHandler;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.SystemMessages;
 import com.vaadin.server.SystemMessagesInfo;
 import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.server.SpringVaadinServlet;
@@ -57,8 +60,8 @@ public class AdminUI extends UI {
     	
     	
 		mainView.setNav();
+		mainView.setHeight(Page.getCurrent().getBrowserWindowHeight()-2,Unit.PIXELS);
 		UI.getCurrent().setErrorHandler(new ErrorHandler() {
-
 			@Override
 			public void error(com.vaadin.server.ErrorEvent event) {
 				String cause = "<b>The click failed because:</b><br/>";
@@ -82,6 +85,15 @@ public class AdminUI extends UI {
 			}
 		});
 		
+		Page.getCurrent().addBrowserWindowResizeListener(new Page.BrowserWindowResizeListener() {
+			@Override
+			public void browserWindowResized(BrowserWindowResizeEvent event) {
+				mainView.setHeight(Page.getCurrent().getBrowserWindowHeight()-2,Unit.PIXELS);
+			}
+		});
+		VaadinServletRequest request = (VaadinServletRequest)vaadinRequest;
+		System.out.println("-----------"+request.getSession());
+		//VaadinService.getCurrent()
     }
 
     

@@ -17,9 +17,10 @@
 
 	 <dubbo:provider timeout="10000" threadpool="fixed" threads="100" accepts="1000" /> 
 
-	<dubbo:service interface="com.cooperay.facade.admin.service.UserFacade" ref="userFacadeImpl" />
-	<dubbo:service interface="com.cooperay.facade.admin.service.GroupFacade" ref="groupFacadeImpl" />
-	<dubbo:service interface="com.cooperay.facade.admin.service.ResourceFacade" ref="resourceFacadeImpl" />
+	<dubbo:service interface="com.cooperay.facade.admin.service.UserFacade" ref="userFacade" />
+	<dubbo:service interface="com.cooperay.facade.admin.service.GroupFacade" ref="groupFacade" />
+	<dubbo:service interface="com.cooperay.facade.admin.service.ResourceFacade" ref="resourceFacade" />
+	<dubbo:service interface="com.cooperay.facade.admin.service.DeptFacade" ref="deptFacade" />
 
 
 </beans>  

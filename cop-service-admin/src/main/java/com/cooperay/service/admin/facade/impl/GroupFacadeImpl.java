@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.cooperay.facade.admin.service.GroupFacade;
 import com.cooperay.service.admin.biz.GroupBiz;
 
-@Service
+@Service("groupFacade")
 public class GroupFacadeImpl extends GroupBiz implements GroupFacade {
 
 	

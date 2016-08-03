@@ -30,6 +30,7 @@ import com.cooperay.web.vaadin.base.converter.ConvertEnableIntface;
 import com.cooperay.web.vaadin.base.enums.BooleanEnum;
 import com.cooperay.web.vaadin.base.utils.ExcelUtil;
 import com.cooperay.web.vaadin.component.CRUDToolBar;
+import com.cooperay.web.vaadin.component.CRUDToolBar.CRUDLinster;
 import com.cooperay.web.vaadin.component.ConfimWindow;
 import com.cooperay.web.vaadin.component.DownloadWindow;
 import com.cooperay.web.vaadin.component.PageBar;
@@ -50,6 +51,8 @@ import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.Page.BrowserWindowResizeEvent;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -72,9 +75,9 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
-public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewInterface<T> {
+public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewInterface<T> ,CRUDLinster{
 	protected static final Logger log = LoggerFactory.getLogger(BaseView.class);
-	final String STATE_SAVE = "create";
+	public final String STATE_SAVE = "create";
 	protected static final String STATE_UPDATE = "update";
 	protected static final long serialVersionUID = 1L;
 	protected static final Integer FIELD_COL_SIZE = 10;
@@ -98,6 +101,8 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	protected Grid grid;
 	protected PageBar pageBar;
 	protected VerticalLayout panelContent;
+	
+	protected Component mainComponent; //主操作区域组件
 	
 	protected CRUDToolBar optTooBar; //CRUD 按钮工具条
 	
@@ -184,8 +189,10 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		panelContent.setMargin(true);
 		panelContent.setSpacing(true);
 		panelContent.addComponent(createToolBar());
-		panelContent.addComponent(createGrid());
+		mainComponent = createGrid();
+		panelContent.addComponent(mainComponent);
 		addComponent(panel);
+		resizeAble();
 	}
 
 	/**
@@ -286,6 +293,85 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
        return editWindow;
 	}
 	
+	
+	
+	@Override
+	public void create() {
+		if(entry!=null){
+			Class<T> class1 = (Class<T>)entry.getClass();
+			try {
+				entry = class1.newInstance();
+				editWindow = createEditWindow(STATE_SAVE);
+				getUI().addWindow(editWindow);
+			} catch (InstantiationException | IllegalAccessException e) {
+				log.error("$==> 初始化实体类失败 "+entry.getClass());
+			}
+		}else{
+			log.error("$==> 新增初始化失败 "+entry.getClass());
+		}
+	}
+
+
+	@Override
+	public void update() {
+		if(selectedList==null || selectedList.size()<=0){
+			Notification.show("未选中内容",Type.WARNING_MESSAGE);
+			return;
+		}
+		if(selectedList.size()>1){
+			Notification.show("请选中一条记录进行编辑",Type.WARNING_MESSAGE);
+			return;
+		}
+		entry = selectedList.get(0);
+		editWindow = createEditWindow(STATE_UPDATE);
+        getUI().addWindow(editWindow);
+	}
+
+
+	@Override
+	public void delete() {
+		if(selectedList == null || selectedList.size()<=0){
+			Notification.show("未选中内容",Type.WARNING_MESSAGE);
+			return;
+		}
+		ConfimWindow confimWindow = new ConfimWindow("警告","删除选中的-"+selectedList.size()+"-条记录？");
+		confimWindow.setConfimEventLinster(new ConfimWindow.ConfimEventLinster() {
+			@Override
+			public void confim(ConfimWindow confimWindow) {
+				for(int i=0 ;i<selectedList.size() ;i++){
+					linster.delete(selectedList.get(i));
+				}
+				Notification.show(selectedList.size()+"条记录已删除",Type.TRAY_NOTIFICATION);
+				linster.page(currentPage, rows);
+				if(pageBar!=null){
+					resetPageBar();
+				}
+				if(grid!=null){
+					grid.deselectAll();
+				}
+				selectedList = new ArrayList<>();
+				confimWindow.close();
+			}
+			@Override
+			public void cancel(ConfimWindow confimWindow) {
+				confimWindow.close();
+			}
+		});
+		getUI().addWindow(confimWindow);	
+	}
+
+
+	@Override
+	public void refresh() {
+		int i = currentPage;
+		linster.page(currentPage, rows);
+		//resetPageBar();
+		if(pageBar!=null){
+			pageBar.resetPageBarSelectPage(i,pageBean.getTotalCount(), rows);
+		}
+	}
+	
+	
 	/**
 	 * @作者：李阳
 	 * @时间：2016年6月22日 上午8:48:17
@@ -295,68 +381,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	protected Component createToolBar(){
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setSizeFull();
-		optTooBar = new CRUDToolBar(new CRUDToolBar.CRUDLinster() {
-			@Override
-			public void update() {
-				if(selectedList==null || selectedList.size()<=0){
-					Notification.show("未选中内容",Type.WARNING_MESSAGE);
-					return;
-				}
-				if(selectedList.size()>1){
-					Notification.show("请选中一条记录进行编辑",Type.WARNING_MESSAGE);
-					return;
-				}
-				editWindow = createEditWindow(STATE_UPDATE);
-		        getUI().addWindow(editWindow);
-			}
-			
-			@Override
-			public void refresh() {
-				int i = currentPage;
-				linster.page(currentPage, rows);
-				//resetPageBar();
-				pageBar.resetPageBarSelectPage(i,pageBean.getTotalCount(), rows);
-				
-			}
-			@Override
-			public void delete() {
-				if(selectedList == null || selectedList.size()<=0){
-					Notification.show("未选中内容",Type.WARNING_MESSAGE);
-					return;
-				}
-				ConfimWindow confimWindow = new ConfimWindow("警告","删除选中的-"+selectedList.size()+"-条记录？");
-				confimWindow.setConfimEventLinster(new ConfimWindow.ConfimEventLinster() {
-					@Override
-					public void confim(ConfimWindow confimWindow) {
-						for(int i=0 ;i<selectedList.size() ;i++){
-							linster.delete(selectedList.get(i));
-						}
-						Notification.show(selectedList.size()+"条记录已删除",Type.TRAY_NOTIFICATION);
-						linster.page(currentPage, rows);
-						resetPageBar();
-						grid.deselectAll();
-						confimWindow.close();
-					}
-					@Override
-					public void cancel(ConfimWindow confimWindow) {
-						confimWindow.close();
-					}
-				});
-				getUI().addWindow(confimWindow);	
-			}
-			
-			@Override
-			public void create() {
-				Class<T> class1 = (Class<T>)entry.getClass();
-				try {
-					entry = class1.newInstance();
-					editWindow = createEditWindow(STATE_SAVE);
-			        getUI().addWindow(editWindow);
-				} catch (InstantiationException | IllegalAccessException e) {
-					log.error("$==> 初始化实体类失败 "+entry.getClass());
-				}
-			}
-		});
+		optTooBar = new CRUDToolBar(this);
 		toolbar.addComponent(optTooBar);
 		Component seachForm = createSeachForm();
 		toolbar.addComponent(seachForm);
@@ -649,6 +674,7 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		//grid.setHeightByRows(rows);
 		//grid.setHeightMode(HeightMode.ROW);
 		grid.setHeight(Page.getCurrent().getBrowserWindowHeight()-290, Unit.PIXELS);
+		
 		// Handle selection in single-selection mode
 		grid.setSelectionMode(SelectionMode.MULTI);
 		if(colOrder!=null){
@@ -770,7 +796,9 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						linster.add(entry);
 						editWindow.close();
 						linster.page(1, rows);
-						resetPageBar();
+						if(pageBar!=null){
+							resetPageBar();
+						}
 					} catch (CommitException e) {
 						log.debug("$==>form commit error");
 						Notification.show("输入内容有误");
@@ -788,7 +816,9 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 						linster.update(entry);
 						editWindow.close();
 						linster.page(currentPage, rows);
-						grid.deselectAll();
+						if(grid!=null){      //兼容tabletree
+							grid.deselectAll();
+						}
 					} catch (CommitException e) {
 						log.debug("$==>form commit error");
 						Notification.show("输入内容有误");
@@ -825,6 +855,15 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		this.rows = rows;
 	}
 	
-	
+	public void resizeAble(){
+		Page.getCurrent().addBrowserWindowResizeListener(new Page.BrowserWindowResizeListener() {
+			@Override
+			public void browserWindowResized(BrowserWindowResizeEvent event) {
+				if(mainComponent!=null){
+					mainComponent.setHeight(Page.getCurrent().getBrowserWindowHeight()-290,Unit.PIXELS);
+				}
+			}
+		});
+	}
 	
 }

@@ -8,4 +8,5 @@
 	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}"/>
 	<dubbo:protocol name="dubbo" port="20881"/>
 	<dubbo:reference interface="com.cooperay.facade.admin.service.UserFacade" id="userFacade" check="false"/>
+	<dubbo:reference interface="com.cooperay.facade.admin.service.DeptFacade" id="deptFacade" check="false"/>
 </beans>  

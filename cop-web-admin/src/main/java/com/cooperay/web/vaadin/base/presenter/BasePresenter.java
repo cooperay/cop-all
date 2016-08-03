@@ -10,9 +10,9 @@ import com.cooperay.web.vaadin.base.view.BaseViewLinster;
 
 public class BasePresenter<T,V> implements BaseViewLinster<T> {
 
-	private BaseFacadeInterface<T> service;
+	protected BaseFacadeInterface<T> service;
 	
-	private BaseView<T,V> view;
+	protected BaseView<T,V> view;
 	
 	public BasePresenter(BaseFacadeInterface<T> service,BaseView<T,V> view) {
 		this.service = service;

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.DepartmentMapper">
+	<resultMap id="BaseResultMap" type="com.cooperay.facade.admin.entity.Department">
+		<id column="ID" jdbcType="BIGINT" property="id" />
+		<result column="DEPT_NAME" jdbcType="VARCHAR" property="deptName" />
+		<result column="P_ID" jdbcType="BIGINT" property="pId" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID, DEPT_NAME, P_ID
+	</sql>
+	
+	<sql id="condition_sql">
+		<if test="deptName != null">
+				AND DEPT_NAME = #{deptName,jdbcType=VARCHAR}
+			</if>
+			<if test="pId != null">
+				AND P_ID = #{pId,jdbcType=BIGINT}
+			</if>
+	</sql>
+
+	<select id="listPage" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_dept
+		<where>
+			<include refid="condition_sql" />
+		</where>
+		<![CDATA[ order by ID desc]]>
+	</select>
+
+	<select id="listBy" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List" />
+		from t_dept
+		<where>
+			<include refid="condition_sql" />
+		</where>
+	</select>
+	
+	
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_dept
+		where ID = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from t_dept
+		where ID = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.Department">
+		insert into t_dept (ID, DEPT_NAME, P_ID
+		)
+		values (#{id,jdbcType=BIGINT}, #{deptName,jdbcType=VARCHAR},
+		#{pId,jdbcType=BIGINT}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.cooperay.facade.admin.entity.Department">
+		insert into t_dept
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="deptName != null">
+				DEPT_NAME,
+			</if>
+			<if test="pId != null">
+				P_ID,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="deptName != null">
+				#{deptName,jdbcType=VARCHAR},
+			</if>
+			<if test="pId != null">
+				#{pId,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.cooperay.facade.admin.entity.Department">
+		update t_dept
+		<set>
+			<if test="deptName != null">
+				DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+			</if>
+			<if test="pId != null">
+				P_ID = #{pId,jdbcType=BIGINT},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.cooperay.facade.admin.entity.Department">
+		update t_dept
+		set DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+		P_ID = #{pId,jdbcType=BIGINT}
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

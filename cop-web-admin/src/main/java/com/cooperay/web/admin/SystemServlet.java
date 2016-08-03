@@ -7,10 +7,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.vaadin.server.CustomizedSystemMessages;
+import com.vaadin.server.ServiceException;
+import com.vaadin.server.SessionInitEvent;
+import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.SystemMessages;
 import com.vaadin.server.SystemMessagesInfo;
 import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.server.SpringVaadinServlet;
 
@@ -29,6 +33,13 @@ public class SystemServlet extends SpringVaadinServlet {
 				return customizedSystemMessages;
 			}
 		});
+		/*VaadinService.getCurrent().addSessionInitListener(new SessionInitListener() {
+			@Override
+			public void sessionInit(SessionInitEvent event) throws ServiceException {
+				
+				
+			}
+		});*/
 	}
 	
 	
@@ -44,5 +55,4 @@ public class SystemServlet extends SpringVaadinServlet {
 			super.service(request, response);
 		}*/
 	}
-	
 }

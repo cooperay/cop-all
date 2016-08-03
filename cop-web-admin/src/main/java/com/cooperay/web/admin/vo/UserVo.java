@@ -7,6 +7,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
 import com.cooperay.facade.admin.entity.User.State;
+import com.cooperay.web.admin.component.DeptSelecter;
 import com.cooperay.web.admin.component.UserSelecter;
 import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.cooperay.web.vaadin.base.ann.HideInForm;
@@ -52,7 +53,7 @@ public class UserVo {
 	private Double age;
 	
 	@NotNull
-	@FormProperty(text="用户组",fieldClass=UserSelecter.class)
+	@FormProperty(text="用户组",fieldClass=DeptSelecter.class)
 	private Long deptId;
 	
 	//@HideInForm(exclude={"update"})
