@@ -5,11 +5,13 @@
 		<id column="ID" jdbcType="BIGINT" property="id" />
 		<result column="RESOURCE_NAME" jdbcType="VARCHAR" property="resourceName" />
 		<result column="TYPE" jdbcType="VARCHAR" property="type" />
+		<result column="URL" jdbcType="VARCHAR" property="url" />
+		<result column="ICON" jdbcType="VARCHAR" property="icon" />
+		<result column="PARENT_ID" jdbcType="BIGINT" property="parentId" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		ID, RESOURCE_NAME, TYPE
+		ID, RESOURCE_NAME, TYPE, URL, ICON, PARENT_ID
 	</sql>
-
 
 	<sql id="condition_sql">
 		<if test="resourceName != null">
@@ -17,6 +19,15 @@
 		</if>
 		<if test="type != null">
 			AND TYPE = #{type,jdbcType=VARCHAR}
+		</if>
+		<if test="url != null">
+			AND URL = #{url,jdbcType=VARCHAR}
+		</if>
+		<if test="icon != null">
+			AND ICON = #{icon,jdbcType=VARCHAR}
+		</if>
+		<if test="parentId != null">
+			AND PARENT_ID = #{parentId,jdbcType=BIGINT}
 		</if>
 	</sql>
 
@@ -26,7 +37,7 @@
 		<where>
 			<include refid="condition_sql" />
 		</where>
-		<![CDATA[ order by ID desc]]>
+		<![CDATA[ order by ID ]]>
 	</select>
 
 	<select id="listBy" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -53,12 +64,13 @@
 	</delete>
 	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.Resource">
 		insert into t_resource (ID,
-		RESOURCE_NAME, TYPE
-		)
-		values (#{id,jdbcType=BIGINT},
-		#{resourceName,jdbcType=VARCHAR},
-		#{type,jdbcType=VARCHAR}
-		)
+		RESOURCE_NAME, TYPE,
+		URL, ICON, PARENT_ID)
+		values
+		(#{id,jdbcType=BIGINT}, #{resourceName,jdbcType=VARCHAR},
+		#{type,jdbcType=VARCHAR},
+		#{url,jdbcType=VARCHAR},
+		#{icon,jdbcType=VARCHAR}, #{parentId,jdbcType=BIGINT})
 	</insert>
 	<insert id="insertSelective" parameterType="com.cooperay.facade.admin.entity.Resource">
 		insert into t_resource
@@ -72,6 +84,15 @@
 			<if test="type != null">
 				TYPE,
 			</if>
+			<if test="url != null">
+				URL,
+			</if>
+			<if test="icon != null">
+				ICON,
+			</if>
+			<if test="parentId != null">
+				PARENT_ID,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
@@ -82,6 +103,15 @@
 			</if>
 			<if test="type != null">
 				#{type,jdbcType=VARCHAR},
+			</if>
+			<if test="url != null">
+				#{url,jdbcType=VARCHAR},
+			</if>
+			<if test="icon != null">
+				#{icon,jdbcType=VARCHAR},
+			</if>
+			<if test="parentId != null">
+				#{parentId,jdbcType=BIGINT},
 			</if>
 		</trim>
 	</insert>
@@ -94,6 +124,15 @@
 			<if test="type != null">
 				TYPE = #{type,jdbcType=VARCHAR},
 			</if>
+			<if test="url != null">
+				URL = #{url,jdbcType=VARCHAR},
+			</if>
+			<if test="icon != null">
+				ICON = #{icon,jdbcType=VARCHAR},
+			</if>
+			<if test="parentId != null">
+				PARENT_ID = #{parentId,jdbcType=BIGINT},
+			</if>
 		</set>
 		where ID = #{id,jdbcType=BIGINT}
 	</update>
@@ -101,7 +140,12 @@
 		update t_resource
 		set RESOURCE_NAME = #{resourceName,jdbcType=VARCHAR},
 		TYPE =
-		#{type,jdbcType=VARCHAR}
-		where ID = #{id,jdbcType=BIGINT}
+		#{type,jdbcType=VARCHAR},
+		URL = #{url,jdbcType=VARCHAR},
+		ICON =
+		#{icon,jdbcType=VARCHAR},
+		PARENT_ID = #{parentId,jdbcType=BIGINT}
+		where
+		ID = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

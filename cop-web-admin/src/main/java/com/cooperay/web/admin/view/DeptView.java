@@ -51,6 +51,9 @@ public class DeptView extends TableTreeView<Department, DeptVo> {
 	                }
 			}
 		});
+		treeTable.setVisibleColumns("deptName","id","createTime");
+		//treeTable.setPageLength(5);
+		//treeTable.setCurrentPageFirstItemIndex(5);
 		// TODO Auto-generated constructor stub
 	}
 	

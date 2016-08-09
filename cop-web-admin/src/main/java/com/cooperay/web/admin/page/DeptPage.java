@@ -31,7 +31,7 @@ public class DeptPage extends VerticalLayout implements View{
 		DeptView userView = new DeptView();
 		DeptPresenter presenter = new DeptPresenter(deptService, userView);
 		addComponent(presenter.getView());
-		presenter.page(1, 50);
+		presenter.page(1, 500000);
 	}
 
 }

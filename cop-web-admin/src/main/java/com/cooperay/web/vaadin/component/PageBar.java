@@ -288,23 +288,21 @@ public class PageBar extends HorizontalLayout {
 	public void resetPageBarSelectPage(Integer pageNum,Integer allCount,Integer rows){
 		Integer startPage =1;
 		if(pages!=null && pages.size()>0){
-			
-		}
-		startPage= pages.get(0).getPage();
-		reset(allCount,this.rows); //重置分页
-		if(pageNum > pageCount){
-			return ;
-		}
-		//重新选择
-		createPageButton(startPage,pageCount);
-		for (PageButton page : pages) {
-			System.out.println(page.getPage()+"  "+pageNum);
-			if(page.getPage().equals(pageNum)){
-				curentPage = page;
-				break;
+			startPage= pages.get(0).getPage();
+			reset(allCount,this.rows); //重置分页
+			if(pageNum > pageCount){
+				return ;
 			}
+			//重新选择
+			createPageButton(startPage,pageCount);
+			for (PageButton page : pages) {
+				if(page.getPage().equals(pageNum)){
+					curentPage = page;
+					break;
+				}
+			}
+			refreshSelected();
 		}
-		refreshSelected();
 	}
 	
 	/**

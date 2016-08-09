@@ -8,7 +8,7 @@
 		<property name="suppressAllComments" value="true"/>
 	</commentGenerator>
   	
-    <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.99.202/vaadin_system" userId="root" password="password"/>
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.99.206/vaadin_system" userId="root" password="password"/>
     <javaModelGenerator targetPackage="com.cooperay.facade.admin.entity" targetProject="cop-facade-admin">
 		<property name="enableSubPackages" value="true"/>
 		<property name="trimStrings" value="true"/>
@@ -19,7 +19,7 @@
    <!--  <javaClientGenerator type="XMLMAPPER" targetPackage="mlm.dao.base" targetProject="cop-facade-admin">
 		<property name="enableSubPackages" value="true"/>
 	</javaClientGenerator> -->
-    	<table tableName="T_DEPT" domainObjectName="Department" enableCountByExample="false" 
+    	<table tableName="T_GROUP_RESOURCE" domainObjectName="GroupResource" enableCountByExample="false" 
     	enableUpdateByExample="false" enableDeleteByExample="false" 
     	enableSelectByExample="false" selectByExampleQueryId="false"/>
     	<!-- 	<table tableName="T_GROUP" domainObjectName="Group" enableCountByExample="false" 

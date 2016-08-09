@@ -16,6 +16,7 @@ import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.Action;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Sizeable.Unit;
@@ -69,8 +70,6 @@ public class TableTreeView<T,V> extends BaseView<T, V> {
 			log.debug("树结构排序失败");
 			e.printStackTrace();
 		}
-		treeTable.setVisibleColumns("deptName","id","createTime");
-		
 		for (Object itemId: treeTable.getContainerDataSource()
                 .getItemIds()) {
 		treeTable.setCollapsed(itemId, false);

@@ -2,11 +2,12 @@ package com.cooperay.facade.admin.entity;
 
 import com.cooperay.common.entity.BaseEntity;
 
-public class Department extends BaseEntity{
+public class Department extends BaseEntity {
 
     private String deptName;
 
     private Long parentId;
+
 
     public String getDeptName() {
         return deptName;
@@ -24,5 +25,5 @@ public class Department extends BaseEntity{
 		this.parentId = parentId;
 	}
 
-   
+    
 }

@@ -7,7 +7,6 @@ import com.cooperay.service.admin.biz.GroupBiz;
 
 @Service("groupFacade")
 public class GroupFacadeImpl extends GroupBiz implements GroupFacade {
-
 	
 
 }

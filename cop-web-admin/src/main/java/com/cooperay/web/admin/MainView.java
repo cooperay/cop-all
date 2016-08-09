@@ -3,6 +3,8 @@ package com.cooperay.web.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cooperay.web.admin.page.DeptPage;
+import com.cooperay.web.admin.page.GroupPage;
+import com.cooperay.web.admin.page.ResourcePage;
 import com.cooperay.web.admin.page.UserPage;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
@@ -74,6 +76,8 @@ public class MainView extends VerticalLayout implements View {
 		MenuItem baseItem = menuBar.addItem("基础设置", null);
 		baseItem.addItem("部门管理", new MenuItemClick(DeptPage.NAME));
 		baseItem.addItem("用户管理", new MenuItemClick(UserPage.NAME));
+		baseItem.addItem("资源管理", new MenuItemClick(ResourcePage.NAME));
+		baseItem.addItem("角色管理", new MenuItemClick(GroupPage.NAME));
 		/*
 		 * menuBar.addItem("退出系统",new Command() {
 		 * 

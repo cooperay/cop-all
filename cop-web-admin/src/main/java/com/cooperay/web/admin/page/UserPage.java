@@ -23,6 +23,7 @@ public class UserPage extends VerticalLayout implements View{
 	
 	@Override
 	public void enter(ViewChangeEvent event) {
+		System.out.println("user page create");
 		removeAllComponents();
 		//addComponent(userSelecter);
 		UserView userView = new UserView();
