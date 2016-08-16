@@ -2,6 +2,7 @@ package com.cooperay.web.admin.service;
 
 
 import java.util.List;
+import java.util.Map;
 
 import org.aspectj.weaver.reflect.ReflectionBasedResolvedMemberImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,10 @@ public class GroupService implements BaseFacadeInterface<Group> {
 	public void list() {
 		groupFacade.listBy(null);
 		
+	}
+	
+	public List<Group> listBy(Map<String, Object> paramMap){
+		return groupFacade.listBy(paramMap);
 	}
 
 	public void setResource(List<GroupResource> groupResources) {

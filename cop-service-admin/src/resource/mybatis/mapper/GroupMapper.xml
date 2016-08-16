@@ -14,6 +14,12 @@
 		<if test="groupName != null">
 			AND GROUP_NAME = #{groupName,jdbcType=VARCHAR}
 		</if>
+		<if test="deptId != null">
+			AND	ID in (select GROUP_ID from t_dept_group where DEPT_ID = #{deptId,jdbcType=BIGINT})
+		</if>
+		<if test="userId != null">
+			AND	ID in (select GROUP_ID from t_user_group where USER_ID = #{userId,jdbcType=BIGINT})
+		</if>
 	</sql>
 
 	<select id="listPage" parameterType="java.util.Map" resultMap="BaseResultMap">

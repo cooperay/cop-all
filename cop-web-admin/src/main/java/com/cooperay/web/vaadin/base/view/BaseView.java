@@ -234,7 +234,15 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 		return pageBar;
 	}
 	
-	
+	/**
+	 * 
+	* @作者：李阳
+	* @时间：Aug 12, 2016
+	* @描述：将当前grid内容导出为excel
+	* @参数： 
+	* @返回: void 
+	* @异常:
+	 */
 	protected void exportExcel() {
 		List<Column> columns = grid.getColumns();
 		String basePath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();

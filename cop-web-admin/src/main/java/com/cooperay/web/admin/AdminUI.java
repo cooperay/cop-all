@@ -1,38 +1,23 @@
 package com.cooperay.web.admin;
 
-import javax.servlet.annotation.WebListener;
-import javax.servlet.annotation.WebServlet;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.ContextLoaderListener;
 
 import com.alibaba.dubbo.rpc.RpcException;
-import com.cooperay.web.admin.page.UserPage;
+import com.cooperay.facade.admin.entity.User;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
-import com.vaadin.server.SystemMessages;
-import com.vaadin.server.SystemMessagesInfo;
-import com.vaadin.server.SystemMessagesProvider;
+import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.spring.server.SpringVaadinServlet;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.UI;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -53,14 +38,34 @@ public class AdminUI extends UI {
 	
     @Autowired
     private MainView mainView;
+    
+    @Autowired
+    private LoginView loginView;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-    	setContent(mainView);
-    	
-    	
-		mainView.setNav();
-		mainView.setHeight(Page.getCurrent().getBrowserWindowHeight()-2,Unit.PIXELS);
+    	//setContent(loginView);
+    	//setContent(mainView);
+    	loginView.addLoginListener(new LoginView.LoginListener() {
+			@Override
+			public Boolean onLogin(String userName, String passWord) {
+				VaadinSession.getCurrent().setAttribute(User.class.getName(),new User());
+				updateContent();
+				return true;
+			}
+		});
+    	mainView.addLoginListener(new MainView.LogOutListener() {
+			@Override
+			public void onLogOut() {
+				VaadinSession.getCurrent().setAttribute(User.class.getName(),null);
+				//getPage().reload();
+				updateContent();
+			}
+		});
+    	loginView.setHeight(Page.getCurrent().getBrowserWindowHeight()-2,Unit.PIXELS);
+    	mainView.setHeight(Page.getCurrent().getBrowserWindowHeight()-2,Unit.PIXELS);
+    	updateContent();
+		//mainView.setNav();
 		UI.getCurrent().setErrorHandler(new ErrorHandler() {
 			@Override
 			public void error(com.vaadin.server.ErrorEvent event) {
@@ -94,6 +99,18 @@ public class AdminUI extends UI {
 		VaadinServletRequest request = (VaadinServletRequest)vaadinRequest;
 		System.out.println("-----------"+request.getSession());
 		//VaadinService.getCurrent()
+    }
+    
+    public void updateContent(){
+    	User user = (User) VaadinSession.getCurrent().getAttribute(
+                User.class.getName());
+        if (user != null) {
+            // Authenticated user
+            setContent(mainView);
+            mainView.setNav();
+        } else {
+            setContent(loginView);
+        }
     }
 
     

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cooperay.service.admin.dao.impl.DeptGroupDaoImpl">
+	<resultMap id="BaseResultMap" type="com.cooperay.facade.admin.entity.DeptGroup">
+		<id column="ID" jdbcType="BIGINT" property="id" />
+		<result column="GROUP_ID" jdbcType="BIGINT" property="groupId" />
+		<result column="DEPT_ID" jdbcType="BIGINT" property="deptId" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID, GROUP_ID, DEPT_ID
+	</sql>
+	
+	<sql id="condition_sql">
+		<if test="groupId != null">
+			AND GROUP_ID = #{groupId,jdbcType=BIGINT}
+		</if>
+		<if test="deptId != null">
+			AND DEPT_ID = #{deptId,jdbcType=BIGINT}
+		</if>
+	</sql>
+
+	<select id="listPage" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select * from
+		t_dept_group
+		<where>
+			<include refid="condition_sql" />
+		</where>
+		<![CDATA[ order by ID ]]>
+	</select>
+
+	<select id="listBy" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select * from
+		t_dept_group
+		<where>
+			<include refid="condition_sql" />
+		</where>
+	</select>
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_dept_group
+		where ID = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from t_dept_group
+		where ID = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.DeptGroup">
+		insert into t_dept_group (ID, GROUP_ID, DEPT_ID
+		)
+		values (#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT},
+		#{deptId,jdbcType=BIGINT}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.cooperay.facade.admin.entity.DeptGroup">
+		insert into t_dept_group
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="groupId != null">
+				GROUP_ID,
+			</if>
+			<if test="deptId != null">
+				DEPT_ID,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="groupId != null">
+				#{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="deptId != null">
+				#{deptId,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.cooperay.facade.admin.entity.DeptGroup">
+		update t_dept_group
+		<set>
+			<if test="groupId != null">
+				GROUP_ID = #{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="deptId != null">
+				DEPT_ID = #{deptId,jdbcType=BIGINT},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.cooperay.facade.admin.entity.DeptGroup">
+		update t_dept_group
+		set GROUP_ID = #{groupId,jdbcType=BIGINT},
+		DEPT_ID = #{deptId,jdbcType=BIGINT}
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>

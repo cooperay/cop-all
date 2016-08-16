@@ -29,14 +29,14 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>vaadin</servlet-name>
-		<url-pattern>/vaadin/*</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-	<servlet-mapping>
+	<!-- <servlet-mapping>
 		<servlet-name>vaadin</servlet-name>
 		<url-pattern>/VAADIN/*</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping> -->
 
-	<servlet>
+	<!-- <servlet>
 		<description>spring mvc servlet</description>
 		<servlet-name>spring-mvc</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -49,7 +49,7 @@
 	<servlet-mapping>
 		<servlet-name>spring-mvc</servlet-name>
 		<url-pattern>*.do</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping> -->
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>

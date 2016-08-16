@@ -2,10 +2,13 @@ package com.cooperay.web.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.cooperay.web.admin.LoginView.LoginListener;
+import com.cooperay.web.admin.page.AuthPage;
 import com.cooperay.web.admin.page.DeptPage;
 import com.cooperay.web.admin.page.GroupPage;
 import com.cooperay.web.admin.page.ResourcePage;
 import com.cooperay.web.admin.page.UserPage;
+import com.cooperay.web.vaadin.component.ConfimWindow;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.navigator.Navigator;
@@ -40,6 +43,8 @@ public class MainView extends VerticalLayout implements View {
 
 	public static final String NAME = "main";
 
+	private LogOutListener logOutListener;
+	
 	public MainView() {
 		init();
 	}
@@ -78,6 +83,7 @@ public class MainView extends VerticalLayout implements View {
 		baseItem.addItem("用户管理", new MenuItemClick(UserPage.NAME));
 		baseItem.addItem("资源管理", new MenuItemClick(ResourcePage.NAME));
 		baseItem.addItem("角色管理", new MenuItemClick(GroupPage.NAME));
+		baseItem.addItem("授权管理", new MenuItemClick(AuthPage.NAME));
 		/*
 		 * menuBar.addItem("退出系统",new Command() {
 		 * 
@@ -204,7 +210,21 @@ public class MainView extends VerticalLayout implements View {
 		settingsItem.addItem("登出", new Command() {
 			@Override
 			public void menuSelected(final MenuItem selectedItem) {
-				Page.getCurrent().setLocation("logout.do");
+				//Page.getCurrent().setLocation("logout.do");
+				ConfimWindow confimWindow = new ConfimWindow("登出", "退出系统之前请保存操作，确认退出？");
+				confimWindow.setConfimEventLinster(new ConfimWindow.ConfimEventLinster() {
+					@Override
+					public void confim(ConfimWindow confimWindow) {
+						logOutListener.onLogOut();
+						UI.getCurrent().removeWindow(confimWindow);
+					}
+					
+					@Override
+					public void cancel(ConfimWindow confimWindow) {
+						UI.getCurrent().removeWindow(confimWindow);
+					}
+				});
+				getUI().getCurrent().addWindow(confimWindow);
 			}
 		});
 		return settings;
@@ -222,6 +242,14 @@ public class MainView extends VerticalLayout implements View {
 		return footer;
 	}
 
+	public interface LogOutListener{
+		void onLogOut();
+	}
+
+	public void addLoginListener(LogOutListener listener){
+		this.logOutListener = listener;
+	}
+	
 	@Override
 	public void enter(ViewChangeEvent event) {
 		/*

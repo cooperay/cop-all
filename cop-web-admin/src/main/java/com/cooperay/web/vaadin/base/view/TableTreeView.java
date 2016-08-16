@@ -36,12 +36,6 @@ public class TableTreeView<T,V> extends BaseView<T, V> {
 
 	
 	@Override
-	protected Component createToolBar() {
-		// TODO Auto-generated method stub
-		return super.createToolBar();
-	}
-	
-	@Override
 	public void setPage(PageBean pageBean) {
 		// TODO Auto-generated method stub
 		//super.setPage(pageBean);
@@ -109,7 +103,6 @@ public class TableTreeView<T,V> extends BaseView<T, V> {
 					selectedList.add(t);
 					entry = t;
 				}
-				System.out.println(selectedList);
 			}
 		});
 		

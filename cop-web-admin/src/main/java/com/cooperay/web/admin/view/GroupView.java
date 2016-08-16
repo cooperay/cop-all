@@ -54,6 +54,7 @@ public class GroupView extends BaseView<Group, GroupVo> {
 		super.setPage(pageBean);
 		GroupPresenter subLister = (GroupPresenter)linster;
 		subLister.initResourceTree();
+		currentGroup = null;
 	}
 	
 	@Override
@@ -156,6 +157,7 @@ public class GroupView extends BaseView<Group, GroupVo> {
 			public void select(SelectionEvent event) {
 				Set<Object> set = event.getSelected();
 				Iterator<Object> iterator = set.iterator();
+				currentGroup = null;
 				if (iterator.hasNext()) {
 					Group group = (Group) iterator.next();
 					currentGroup = group;
@@ -187,6 +189,8 @@ public class GroupView extends BaseView<Group, GroupVo> {
 			}});*/
 		layout.addComponent(grid);
 		layout.addComponent(treeTable);
+		layout.setExpandRatio(grid,0.6f);
+		layout.setExpandRatio(treeTable, 0.4f);
 		return layout;
 	}
 	

@@ -35,7 +35,7 @@
   @include valo;
   .v-slot-main-head{
   	background-image: -webkit-linear-gradient(top, #66b3ff 2%, #1b87e3 98%);
-    background-image: linear-gradient(to bottom,#66b3ff 2%, #1b87e3 98%); 
+    background-image: linear-gradient(to bottom,#66b3ff 2%, #1b87e3 98%); //31629E
     	 
  	}
  .v-menubar-user-menu {
@@ -58,4 +58,5 @@
     	
 
   // Insert your own theme rules here
+  
 }

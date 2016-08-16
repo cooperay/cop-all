@@ -24,6 +24,9 @@
 		<if test="isEnable != null">
 			AND IS_ENABLE = #{isEnable,jdbcType=BIT}
 		</if>
+		<if test="deptId != null">
+			AND DEPT_ID = #{deptId,jdbcType=BIGINT}
+		</if>
 	</sql>
 
 	<select id="listPage" parameterType="java.util.Map" resultMap="BaseResultMap">

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.UserGroupMapper">
+	<resultMap id="BaseResultMap" type="com.cooperay.facade.admin.entity.UserGroup">
+		<id column="ID" jdbcType="BIGINT" property="id" />
+		<result column="GROUP_ID" jdbcType="BIGINT" property="groupId" />
+		<result column="USER_ID" jdbcType="BIGINT" property="userId" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID, GROUP_ID, USER_ID
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_user_group
+		where ID = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from t_user_group
+		where ID = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.UserGroup">
+		insert into t_user_group (ID, GROUP_ID, USER_ID
+		)
+		values (#{id,jdbcType=BIGINT}, #{groupId,jdbcType=BIGINT},
+		#{userId,jdbcType=BIGINT}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.cooperay.facade.admin.entity.UserGroup">
+		insert into t_user_group
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="groupId != null">
+				GROUP_ID,
+			</if>
+			<if test="userId != null">
+				USER_ID,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="groupId != null">
+				#{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.cooperay.facade.admin.entity.UserGroup">
+		update t_user_group
+		<set>
+			<if test="groupId != null">
+				GROUP_ID = #{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="userId != null">
+				USER_ID = #{userId,jdbcType=BIGINT},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.cooperay.facade.admin.entity.UserGroup">
+		update t_user_group
+		set GROUP_ID = #{groupId,jdbcType=BIGINT},
+		USER_ID = #{userId,jdbcType=BIGINT}
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>
