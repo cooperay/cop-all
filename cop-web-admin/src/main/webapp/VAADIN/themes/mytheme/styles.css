@@ -12955,3 +12955,12 @@ div.v-layout.v-horizontal.v-widget {
 	background-image: -webkit-linear-gradient(top, #66b3ff 2%, #1b87e3 98%);
 	background-image: linear, to bottom, #66b3ff 2%, #1b87e3 98%;
 }
+
+.mytheme .step-label {
+	font-size: 22px;
+	color: #cfcfcf;
+}
+
+.mytheme .step-label-select {
+	color: #197bdc;
+}
