@@ -1,0 +1,186 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.cooperay</groupId>
+  <artifactId>cop-service-process</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>cop-service-process</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    
+    <dependency>
+			<groupId>com.cooperay</groupId>
+			<artifactId>cop-common-core</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			
+    </dependency>
+
+		<dependency>
+			<groupId>com.cooperay</groupId>
+			<artifactId>cop-common-config</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.cooperay</groupId>
+			<artifactId>cop-facade-process</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- dubbo zookeeper Config -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>dubbo</artifactId>
+			<version>2.5.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.sgroschupf</groupId>
+			<artifactId>zkclient</artifactId>
+			<version>0.1</version>
+		</dependency>
+    
+    <!-- activiti config -->
+    <!-- https://mvnrepository.com/artifact/org.activiti/activiti-engine -->
+	<dependency>
+	    <groupId>org.activiti</groupId>
+	    <artifactId>activiti-engine</artifactId>
+	    <version>5.21.0</version>
+	    <exclusions>
+	    	<exclusion>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-beans</artifactId>
+	    	</exclusion>
+	    </exclusions>
+	</dependency>
+    
+    <!-- https://mvnrepository.com/artifact/org.activiti/activiti-spring -->
+	<dependency>
+	    <groupId>org.activiti</groupId>
+	    <artifactId>activiti-spring</artifactId>
+	    <version>5.21.0</version>
+	    <exclusions>
+	    	<exclusion>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-beans</artifactId>
+	    	</exclusion>
+	    	<exclusion>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-context</artifactId>
+	    	</exclusion>
+	    	<exclusion>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-jdbc</artifactId>
+	    	</exclusion>
+	    	<exclusion>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-tx</artifactId>
+	    	</exclusion>
+	    	<exclusion>
+	    		<groupId>org.springframework</groupId>
+	    		<artifactId>spring-orm</artifactId>
+	    	</exclusion>
+	    	<exclusion>
+	    		<groupId>commons-dbcp</groupId>
+	    		<artifactId>commons-dbcp</artifactId>
+	    	</exclusion>
+	    </exclusions>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/org.activiti/activiti-bpmn-model -->
+	<dependency>
+	    <groupId>org.activiti</groupId>
+	    <artifactId>activiti-bpmn-model</artifactId>
+	    <version>5.21.0</version>
+	</dependency>
+		
+	    
+    
+  </dependencies>
+  
+  <build>
+		<finalName>cop-service-process</finalName>
+		
+		<resources>
+			<resource>
+				<targetPath>${project.build.directory}/classes</targetPath>
+				<directory>src/resource</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<!-- 结合com.alibaba.dubbo.container.Main -->
+			<!-- dubbo默认查找/META-INF下的spring配置，将spring配置文件复制到/META-INF/spring下 -->
+			<resource>
+				<targetPath>${project.build.directory}/classes/META-INF/spring</targetPath>
+				<directory>src/resource/spring</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>spring-context.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		
+		<plugins>
+			<!-- 打包jar文件时，配置manifest文件，加入lib包的jar依赖 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<classesDirectory>target/classes/</classesDirectory>
+					<archive>
+						<manifest>
+							<mainClass>com.alibaba.dubbo.container.Main</mainClass>
+							<!-- 打包时 MANIFEST.MF文件不记录的时间戳版本 -->
+							<useUniqueVersions>false</useUniqueVersions>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+						</manifest>
+						<manifestEntries>
+							<Class-Path>.</Class-Path>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<type>jar</type>
+							<includeTypes>jar</includeTypes>
+							<useUniqueVersions>false</useUniqueVersions>
+							<outputDirectory>
+								${project.build.directory}/lib
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+  
+</project>

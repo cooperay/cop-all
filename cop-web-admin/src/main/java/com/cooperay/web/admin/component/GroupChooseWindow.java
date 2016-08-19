@@ -99,13 +99,6 @@ public class GroupChooseWindow extends Window{
 		});
 		buttonLayout.addComponents(confim,cancel);
 		content.addComponent(buttonLayout);
-		
-		ProgressBar progressBar = new ProgressBar();
-		progressBar.setHeight("20px");
-		progressBar.setWidth("200px");
-		content.addComponent(progressBar);
-		
-		
 		setContent(windowContent);
 	}
 	
