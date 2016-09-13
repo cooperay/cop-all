@@ -10,4 +10,5 @@ import com.cooperay.service.admin.dao.GroupDao;
 public class GroupDaoImpl extends BaseDaoImpl<Group> implements GroupDao {
 
 	
+	
 }

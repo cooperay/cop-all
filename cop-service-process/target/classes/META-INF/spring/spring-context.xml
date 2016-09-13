@@ -19,7 +19,8 @@
 	<!-- <import resource="classpath:spring/spring-dubbo-consumer.xml"/> -->
 	<import resource="classpath:spring/spring-mybatis.xml"/>
 	<import resource="classpath:spring/spring-activiti.xml"/>
- 	<import resource="classpath:spring/spring-dubbo-provider.xml"/>
+	<import resource="classpath:spring/spring-activemq.xml"/>
+ 	<!-- <import resource="classpath:spring/spring-dubbo-provider.xml"/> -->
 	<context:component-scan base-package="com.cooperay.**" />
 
 </beans>

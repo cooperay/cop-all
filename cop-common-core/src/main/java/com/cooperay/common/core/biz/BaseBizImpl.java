@@ -29,11 +29,19 @@ public abstract class BaseBizImpl<T extends BaseEntity> implements BaseBiz<T> {
 	public long create(List<T> list) {
 		return getDao().insert(list);
 	}
+	
+	public long createSelective(T entity){
+		return getDao().insertSelective(entity);
+	}
 
 	public long update(T entity) {
 		return getDao().update(entity);
 	}
 
+	public long updateSelective(T entity){
+		return getDao().updateSelective(entity);
+	}
+	
 	public long update(List<T> list) {
 		return getDao().update(list);
 	}

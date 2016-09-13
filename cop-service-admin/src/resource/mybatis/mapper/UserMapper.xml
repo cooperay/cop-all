@@ -57,7 +57,7 @@
 		delete from t_user
 		where ID = #{id,jdbcType=BIGINT}
 	</delete>
-	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.User">
+	<insert id="insert" parameterType="com.cooperay.facade.admin.entity.User" useGeneratedKeys="true"  keyProperty="id">
 		insert into t_user (ID, USER_NAME, PASSWORD,
 		IS_ENABLE,DEPT_ID,STATE)
 		values (#{id,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR},
@@ -108,6 +108,9 @@
 			</if>
 			<if test="isEnable != null">
 				IS_ENABLE = #{isEnable,jdbcType=BIT},
+			</if>
+			<if test="state != null">
+				STATE = #{state,jdbcType=VARCHAR},
 			</if>
 		</set>
 		where ID = #{id,jdbcType=BIGINT}

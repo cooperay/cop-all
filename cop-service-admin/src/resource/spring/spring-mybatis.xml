@@ -22,10 +22,9 @@
 	<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="close" >
 		<constructor-arg index="0" ref="sqlSessionFactory" />
 	</bean>
-
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<bean id="jdbcTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"></property>
 	</bean>
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<tx:annotation-driven transaction-manager="jdbcTransactionManager" />
 
 </beans>

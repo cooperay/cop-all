@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,8 @@ import com.cooperay.service.admin.dao.DeptGroupDao;
 @Service
 public class DeptBiz extends BaseBizImpl<Department> {
 
+	protected static final Logger LOG = LoggerFactory.getLogger(DeptBiz.class);
+	
 	@Autowired
 	private DeptDao deptDao;
 	
@@ -34,6 +38,7 @@ public class DeptBiz extends BaseBizImpl<Department> {
 
 	public void setGroup(DeptGroup deptGroup){
 		if(deptGroup==null || deptGroup.getDeptId()==null || deptGroup.getGroupId()==null){
+			LOG.debug("$==>field Resource type");
 			throw new BizException("$==>field Resource type"); 
 		}
 		if(deptGroup.getIsEnable()==null){

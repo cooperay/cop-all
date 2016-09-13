@@ -39,6 +39,11 @@ public class ProcessTest {
 		workFlowFacade.deploy(inputStream,"test");;
 	}
 	
+	@Test
+	public void testSendMessage(){
+		
+		
+	}
 	
 	
 }

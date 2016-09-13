@@ -1,13 +1,18 @@
 package com.cooperay.web.admin;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.cooperay.facade.admin.entity.Resource;
+import com.cooperay.facade.admin.enums.ResourceType;
 import com.cooperay.web.admin.LoginView.LoginListener;
 import com.cooperay.web.admin.page.AuthPage;
 import com.cooperay.web.admin.page.DeptPage;
 import com.cooperay.web.admin.page.GroupPage;
 import com.cooperay.web.admin.page.ResourcePage;
 import com.cooperay.web.admin.page.UserPage;
+import com.cooperay.web.admin.service.UserService;
 import com.cooperay.web.vaadin.component.ConfimWindow;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
@@ -45,8 +50,12 @@ public class MainView extends VerticalLayout implements View {
 
 	private LogOutListener logOutListener;
 	
+	private MenuBar menuBar = new MenuBar();
+	
+	
 	public MainView() {
 		init();
+		
 	}
 
 	@Autowired
@@ -74,16 +83,9 @@ public class MainView extends VerticalLayout implements View {
 	public void init() {
 		// setSpacing(true);
 		addComponent(buildHead2());
-		MenuBar menuBar = new MenuBar();
-
+		menuBar.removeItems();
 		addComponent(menuBar);
-
-		MenuItem baseItem = menuBar.addItem("基础设置", null);
-		baseItem.addItem("部门管理", new MenuItemClick(DeptPage.NAME));
-		baseItem.addItem("用户管理", new MenuItemClick(UserPage.NAME));
-		baseItem.addItem("资源管理", new MenuItemClick(ResourcePage.NAME));
-		baseItem.addItem("角色管理", new MenuItemClick(GroupPage.NAME));
-		baseItem.addItem("授权管理", new MenuItemClick(AuthPage.NAME));
+		
 		/*
 		 * menuBar.addItem("退出系统",new Command() {
 		 * 
@@ -189,6 +191,36 @@ public class MainView extends VerticalLayout implements View {
 
 		return gridLayout;
 	}
+	
+	
+	public void buildChildMenu(Resource resource,MenuItem menuItem){
+		List<Resource> resources = (List)VaadinSession.getCurrent().getAttribute("userResource");
+		if(resources == null){
+			return;
+		}
+		if(resource==null){
+			resource = new Resource();
+			resource.setId(0L);
+		}
+		boolean hasChild = false;
+		for (Resource r : resources) {
+			if(!ResourceType.MENU.equals(r.getType()))
+				continue;
+			if(r.getParentId().equals(resource.getId())){
+				hasChild = true;
+				MenuItem m = null;
+				if(r.getParentId()==0){
+					m =  menuBar.addItem(r.getResourceName(),null);
+				}else{
+					m = menuItem.addItem(r.getResourceName(),new MenuItemClick(r.getUrl()));
+				}
+				buildChildMenu(r, m);
+			}
+		}
+		if(!hasChild){
+			return;
+		}
+	}
 
 	private Component buildUserMenu() {
 		MenuItem settingsItem;
@@ -242,6 +274,12 @@ public class MainView extends VerticalLayout implements View {
 		return footer;
 	}
 
+	public void updateContent(){
+		setNav();
+		menuBar.removeItems();
+		buildChildMenu(null, null);
+	}
+	
 	public interface LogOutListener{
 		void onLogOut();
 	}
@@ -252,6 +290,7 @@ public class MainView extends VerticalLayout implements View {
 	
 	@Override
 	public void enter(ViewChangeEvent event) {
+		System.out.println("-------------------------------------------------");
 		/*
 		 * if (event.getParameters() == null || event.getParameters().isEmpty())
 		 * { contentArea.setContent( new Label("Nothing to see here, " +

@@ -16,6 +16,7 @@ import com.cooperay.web.vaadin.base.ann.FormProperty;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.BeanUtil;
 import com.vaadin.event.Action;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;

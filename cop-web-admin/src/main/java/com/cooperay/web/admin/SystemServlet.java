@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.ServiceException;
@@ -33,6 +34,7 @@ public class SystemServlet extends SpringVaadinServlet {
 				return customizedSystemMessages;
 			}
 		});
+		
 		/*VaadinService.getCurrent().addSessionInitListener(new SessionInitListener() {
 			@Override
 			public void sessionInit(SessionInitEvent event) throws ServiceException {
@@ -47,6 +49,7 @@ public class SystemServlet extends SpringVaadinServlet {
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		super.service(request, response);
+		
 		//System.out.println(VaadinSession.getCurrent());
 	/*	Object user = request.getSession().getAttribute("user");
 		if(user==null){

@@ -29,6 +29,10 @@
 		<if test="parentId != null">
 			AND PARENT_ID = #{parentId,jdbcType=BIGINT}
 		</if>
+		<!-- listAllUserResourceBy -->
+		<if test="userId != null">
+			AND USER_ID = #{userId,jdbcType=BIGINT}
+		</if>
 	</sql>
 
 	<select id="listPage" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -46,6 +50,16 @@
 		<where>
 			<include refid="condition_sql" />
 		</where>
+	</select>
+	
+	<select id="listAllUserResourceBy" parameterType="java.util.Map" resultMap="BaseResultMap">
+		SELECT t1.*,t3.USER_ID,count(t1.id) FROM t_resource t1 
+		LEFT JOIN t_group_resource t2 ON t1.id = t2.RESOURCE_ID 
+		LEFT JOIN t_user_group t3 ON t2.GROUP_ID = t3.GROUP_ID 
+		<where>
+			<include refid="condition_sql" />
+		</where>
+		 group by t1.id
 	</select>
 
 

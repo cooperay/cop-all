@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.cooperay.common.page.PageBean;
 import com.cooperay.common.page.PageParam;
+import com.cooperay.facade.admin.entity.Resource;
 import com.cooperay.facade.admin.entity.User;
 import com.cooperay.facade.admin.service.UserFacade;
 import com.cooperay.web.vaadin.base.service.BaseFacadeInterface;
@@ -45,6 +46,10 @@ public class UserService implements BaseFacadeInterface<User> {
 	@Override
 	public void list() {
 		
+	}
+	
+	public List<Resource> getAllUserResources(Long userId){
+		return userFacade.getAllUserResource(userId);
 	}
 
 }

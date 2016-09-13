@@ -81,6 +81,7 @@ public class CRUDToolBar extends HorizontalLayout{
 		public CRUDButton(String cap) {
 			super(cap);
 			addStyleName(ValoTheme.BUTTON_SMALL);
+			addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		}
 	}
 

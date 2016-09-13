@@ -1,6 +1,7 @@
 package com.cooperay.cop_service_admin;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.FixMethodOrder;
@@ -13,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.cooperay.common.page.PageBean;
 import com.cooperay.common.page.PageParam;
+import com.cooperay.facade.admin.entity.Resource;
 import com.cooperay.facade.admin.entity.User;
 import com.cooperay.service.admin.biz.UserBiz;
 
@@ -37,13 +39,19 @@ public class UserTest {
 	@Test
 	public void test1(){
 		
-		User user = userBiz.getById(1);
+		User user = userBiz.getById(915753);
 		user.setUserName("新的名字");
 		userBiz.update(user);
 		
 	}
 	
 
+	@Test
+	public void test2(){
+		List<Resource> resources = userBiz.getAllUserResource(915756L);
+		System.out.println(resources);
+		
+	}
 	
 	
 	

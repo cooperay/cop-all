@@ -51,6 +51,7 @@ import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinService;
+import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
@@ -294,9 +295,13 @@ public abstract class BaseView<T,V> extends VerticalLayout implements BaseViewIn
 	 */
 	protected Window createEditWindow(String type){
 		editWindow = new Window("新增/编辑窗口");
+		//Panel panel = new Panel();
+		//panel.setContent(createForm(type));
 		editWindow.setContent(createForm(type));
+		editWindow.addStyleName(ValoTheme.PANEL_WELL);
 		editWindow.setModal(true);
 		editWindow.setWidth(500,Unit.PIXELS);
+		
 		editWindow.center();
        return editWindow;
 	}

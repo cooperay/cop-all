@@ -28,6 +28,13 @@ public interface BaseBiz<T extends BaseEntity> {
 	long create(T entity);
 
 	/**
+	 * 根据实体新增 空属性将会忽略
+	 * @param entity
+	 * @return
+	 */
+	long createSelective(T entity);
+	
+	/**
 	 * 批量保存对象.
 	 * 
 	 * @param entity
@@ -44,6 +51,14 @@ public interface BaseBiz<T extends BaseEntity> {
 	 * @return
 	 */
 	long update(T entity);
+	
+	
+	/**
+	 * 更新实体对象对应的记录 空属性将会忽略
+	 * @param entity
+	 * @return
+	 */
+	long updateSelective(T entity);
 
 	/**
 	 * 批量更新对象.

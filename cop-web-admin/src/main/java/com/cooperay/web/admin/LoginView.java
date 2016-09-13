@@ -77,9 +77,9 @@ public class LoginView extends VerticalLayout implements View {
 		layout.addComponents(username,password,reme,login);
 		panel.setContent(layout);
 		addComponent(panel);
-		StepProgressBar stepProgressBar = new StepProgressBar();
+		/*StepProgressBar stepProgressBar = new StepProgressBar();
 		stepProgressBar.setWidth("500px");
-		addComponent(stepProgressBar);
+		addComponent(stepProgressBar);*/
 		setComponentAlignment(panel,Alignment.MIDDLE_CENTER);
 	}
 	

@@ -1,10 +1,14 @@
 package com.cooperay.web.admin;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import com.alibaba.dubbo.rpc.RpcException;
+import com.cooperay.facade.admin.entity.Resource;
 import com.cooperay.facade.admin.entity.User;
+import com.cooperay.web.admin.service.UserService;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.ErrorHandler;
@@ -41,6 +45,9 @@ public class AdminUI extends UI {
     
     @Autowired
     private LoginView loginView;
+    
+    @Autowired
+    private UserService userService;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -50,6 +57,8 @@ public class AdminUI extends UI {
 			@Override
 			public Boolean onLogin(String userName, String passWord) {
 				VaadinSession.getCurrent().setAttribute(User.class.getName(),new User());
+				List<Resource> resources = userService.getAllUserResources(1L);
+				VaadinSession.getCurrent().setAttribute("userResource", resources);
 				updateContent();
 				return true;
 			}
@@ -58,7 +67,7 @@ public class AdminUI extends UI {
 			@Override
 			public void onLogOut() {
 				VaadinSession.getCurrent().setAttribute(User.class.getName(),null);
-				//getPage().reload();
+				VaadinSession.getCurrent().setAttribute("userResource", null);
 				updateContent();
 			}
 		});
@@ -107,7 +116,7 @@ public class AdminUI extends UI {
         if (user != null) {
             // Authenticated user
             setContent(mainView);
-            mainView.setNav();
+           mainView.updateContent();
         } else {
             setContent(loginView);
         }

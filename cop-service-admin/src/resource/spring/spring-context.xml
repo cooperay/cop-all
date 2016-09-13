@@ -11,14 +11,15 @@
 			default-autowire="byName" default-lazy-init="false">
 
 	<context:annotation-config />
-	<context:property-placeholder location="classpath*:db.properties,classpath*:system.properties" />
+	<context:property-placeholder location="classpath*:db.properties,classpath*:system.properties,classpath*:mq.properties" />
 	
 
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
 	
- 	<import resource="classpath:spring/spring-dubbo-provider.xml"/>
+ 	 <import resource="classpath:spring/spring-dubbo-provider.xml"/> 
 	<!-- <import resource="classpath:spring/spring-dubbo-consumer.xml"/> -->
 	<import resource="classpath:spring/spring-mybatis.xml"/>
+	 <import resource="classpath:spring/spring-activemq.xml"/>
 	<!-- <import resource="classpath:spring/spring-dubbo-activemq.xml"/> -->
 	<context:component-scan base-package="com.cooperay.**" />
 
