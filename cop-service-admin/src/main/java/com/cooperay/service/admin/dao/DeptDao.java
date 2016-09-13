@@ -5,4 +5,4 @@ import com.cooperay.facade.admin.entity.Department;
 
 public interface DeptDao extends BaseDao<Department> {
 
-}
+} 
